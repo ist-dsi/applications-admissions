@@ -1,0 +1,34 @@
+package pt.ist.applications.admissions.domain;
+ 
+class Contest {
+	String contestName;
+	DateTime beginDate;
+	DateTime endDate;
+	String viewHash;
+	String directory;
+}
+
+class Candidate {
+    int candidateNumber;
+    String name;
+	String editHash;
+	String directory;
+	String directoryForCandidateDocuments;
+	String directoryForLettersOfRecomendation;
+}
+
+relation BennuApplicationsAdmissionsContests {
+	.org.fenixedu.bennu.core.domain.Bennu playsRole bennu;
+	Contest playsRole contest {
+		multiplicity *;
+	}
+}
+
+relation ContestCandidate {
+	Contest playsRole contest {
+		multiplicity 1..1;
+	}
+	Candidate playsRole candidate {
+		multiplicity *;
+	}
+}
