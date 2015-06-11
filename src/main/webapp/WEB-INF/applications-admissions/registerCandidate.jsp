@@ -31,7 +31,7 @@
 	<form id="registerForm" class="form-horizontal" action="#" method="POST">
 		<div class="form-group">
 			<label class="control-label col-sm-2" for="contestName">
-				<spring:message code="label.applications.admissions.contest.name" text="label.applications.admissions.contest.name" />
+				<spring:message code="label.applications.admissions.candidate" text="Candidate" />
 			</label>
 			<div class="col-sm-10">
 				<input name="name" type="text" class="form-control" id="name" required="required" value=""/>
