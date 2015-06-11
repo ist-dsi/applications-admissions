@@ -36,7 +36,7 @@ public class Contest extends Contest_Base {
 
     public static boolean canManageContests() {
         final User user = Authenticate.getUser();
-        return DynamicGroup.get("managers").isMember(user) || DynamicGroup.get("applications-admissions-manager").isMember(user);
+        return DynamicGroup.get("managers").isMember(user) || DynamicGroup.get("applications_admissions_manager").isMember(user);
     }
 
     public boolean isInPeriod() {
