@@ -17,6 +17,7 @@
     along with MGP Viewer.  If not, see <http://www.gnu.org/licenses/>.
 
 --%>
+<%@page import="org.fenixedu.commons.i18n.I18N"%>
 <%@page import="org.glassfish.jersey.media.multipart.file.StreamDataBodyPart"%>
 <%@page import="pt.ist.applications.admissions.domain.Contest"%>
 <%@page import="pt.ist.applications.admissions.domain.Candidate"%>
@@ -39,6 +40,15 @@
 <%@page import="pt.ist.applications.admissions.util.Utils"%>
 <%@page import="javax.ws.rs.client.ClientBuilder"%>
 <jsp:directive.include file="headers.jsp" />
+
+<% if (request.getParameter("hash") != null && !"en".equals(I18N.getLocale().getLanguage())) { %>
+	<script type="text/javascript">
+    	window.onload=function() {
+    		var contextPath = '<%= contextPath %>';
+			$.post(contextPath + '/api/bennu-core/profile/locale/en-GB').always(function() { location.reload(); });
+    	}
+	</script>
+<% } else { %>
 
 <%
 final JsonObject candidateJson = (JsonObject) request.getAttribute("candidate");
@@ -272,3 +282,4 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
 		border-style: solid;
 	}
 </style>
+<% } %>
