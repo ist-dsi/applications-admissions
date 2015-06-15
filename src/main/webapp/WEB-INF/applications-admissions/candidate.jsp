@@ -54,6 +54,7 @@
 final JsonObject candidateJson = (JsonObject) request.getAttribute("candidate");
 final Candidate candidate = FenixFramework.getDomainObject(candidateJson.get("id").getAsString());
 final String hash = request.getParameter("hash");
+final String hashArg = hash == null ? "" : "?hash=" + hash;
 final JsonArray items = candidateJson.get("items").getAsJsonArray();
 %>
 
@@ -65,7 +66,9 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
 	</h1>
 	<h4>
 		<spring:message code="label.applications.admissions.contest"/>
-		<span id="contestName" style="font-weight: bold;"></span>
+		<a href="<%= contextPath + "/admissions/contest/" + candidate.getContest().getExternalId() + hashArg %>" class="secondaryLink">
+			<span id="contestName" style="font-weight: bold;"></span>
+		</a>
 		<span id="beginDate" style="color: gray;"></span>
 		-
 		<span id="endDate" style="color: gray;"></span>
@@ -194,7 +197,6 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
 		<tbody id="lettersOfRecommendation">
 		</tbody>
 	</table>
-	<% final String hashArg = request.getParameter("hash") == null ? "" : "?hash=" + request.getParameter("hash"); %>
 	<a href="<%= contextPath + "/admissions/candidate/" + candidate.getExternalId() + "/download" + hashArg %>"
 			class="btn btn-default">
 		<spring:message code="label.download.everything" text="Download Everything"/>
