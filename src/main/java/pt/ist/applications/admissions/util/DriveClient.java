@@ -79,7 +79,6 @@ public class DriveClient {
     public static JsonArray listDirectory(final String directory) {
         final String post3 = target("/api/docs/directory/" + directory).get(String.class);
         final JsonObject o3 = new JsonParser().parse(post3).getAsJsonObject();
-        System.out.println(o3.toString());
         return o3.get("items").getAsJsonArray();
     }
 
