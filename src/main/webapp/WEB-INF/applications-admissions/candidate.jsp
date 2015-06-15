@@ -88,8 +88,33 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
 					</button>
 				</form>
 			</td>
+			<td>
+				<button class="btn btn-default" onclick="showDeleteCandidate();">
+					<spring:message code="label.link.delete.candidate" text="Delete Candidate"/>
+				</button>
+			</td>
 		</tr>
 	</table>
+	<div id="deleteCandidate" style="display: none; padding-left: 20px; padding-right: 20px;">
+		<div class="warning-border">
+			<h3 style="background-color: #DE2C2C; color: white; margin: 10px; padding: 10px;">
+				<spring:message code="label.link.delete.candidate" text="Delete Candidate"/>
+			</h3>
+			<p style="margin-left: 50px; margin-right: 50px; font-size: medium;">
+				<spring:message code="label.link.delete.candidate.warning" text="Beware this operation cannot be reversed"/>
+				<br/>
+				<spring:message code="label.link.delete.candidate.warning.input" text="To delete the candidate input the candidates name into the following box."/>
+				<br/>
+				<form method="POST" action="<%= contextPath + "/admissions/candidate/" + candidate.getExternalId() + "/delete" %>"
+						style="margin-left: 50px;">
+					<input id="checkCandidateName" type="text" name="candidateName" size="50" onchange="checkActivateButton();"/>
+					<button id="deleteButton" class="btn btn-default warning-border" onclick="return deleteCandidate();" disabled="disabled" style="background-color: #DE2C2C; color: white;">
+						<spring:message code="label.link.delete.candidate" text="Delete Candidate"/>
+					</button>
+				</form>
+			</p>
+		</div>
+	</div>
 <% } %>
 </div>
 
@@ -143,22 +168,22 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
 </table>
 
 <div id="lettersPart" style="visibility: hidden;">
-<h4>
-	<spring:message code="label.applications.admissions.candidate.lettersOfRecommendation" text="Letters of Recommendation"/>
-</h4>
-<table class="table">
-	<thead>
-		<tr>
-			<th><spring:message code="label.file.name" text="File"/></th>
-			<th><spring:message code="label.file.size" text="Size"/></th>
-			<th><spring:message code="label.file.created" text="Created"/></th>
-			<th><spring:message code="label.file.modified" text="Modified"/></th>
-			<th></th>
-		</tr>
-	</thead>
-	<tbody id="lettersOfRecommendation">
-	</tbody>
-</table>
+	<h4>
+		<spring:message code="label.applications.admissions.candidate.lettersOfRecommendation" text="Letters of Recommendation"/>
+	</h4>
+	<table class="table">
+		<thead>
+			<tr>
+				<th><spring:message code="label.file.name" text="File"/></th>
+				<th><spring:message code="label.file.size" text="Size"/></th>
+				<th><spring:message code="label.file.created" text="Created"/></th>
+				<th><spring:message code="label.file.modified" text="Modified"/></th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody id="lettersOfRecommendation">
+		</tbody>
+	</table>
 </div>
 
 <script type="text/javascript">
@@ -216,5 +241,34 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
 				document.getElementById("undispose").style.visibility = "hidden";
 			}
 		});
+		function showDeleteCandidate() {
+			var d = document.getElementById("deleteCandidate");
+			if (d.style.display === 'none') {
+		    	d.style.display = "block";
+			} else {
+				d.style.display = 'none';
+			}
+		};
+		function checkActivateButton() {
+			var checkCandidateName = document.getElementById('checkCandidateName');
+			var deleteButton = document.getElementById('deleteButton');
+			if (checkCandidateName.value == candidate.name) {
+				deleteButton.disabled = false;
+			} else {
+				deleteButton.disabled = true;
+			}
+			return true;
+		};
+		function deleteCandidate() {
+			var checkCandidateName = document.getElementById('checkCandidateName');
+			return checkCandidateName.value == candidate.name;
+		};
 	</script>
 <% } %>
+<style>
+	.warning-border {
+		border-color: #DE2C2C;
+		border-width: thin;
+		border-style: solid;
+	}
+</style>

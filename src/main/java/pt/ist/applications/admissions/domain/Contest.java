@@ -59,4 +59,11 @@ public class Contest extends Contest_Base {
         return Utils.match(getViewHash(), hash);
     }
 
+    @Atomic
+    public void delete() {
+        getCandidateSet().forEach(Candidate::delete);
+        setBennu(null);
+        deleteDomainObject();
+    }
+
 }

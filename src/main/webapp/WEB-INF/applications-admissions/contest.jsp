@@ -70,8 +70,33 @@
 					</button>
 				</form>
 			</td>
+			<td>
+				<button class="btn btn-default" onclick="showDeleteContest();">
+					<spring:message code="label.link.delete.contest" text="Delete Contest"/>
+				</button>
+			</td>
 		</tr>
 	</table>
+	<div id="deleteContest" style="display: none; padding-left: 20px; padding-right: 20px;">
+		<div class="warning-border">
+			<h3 style="background-color: #DE2C2C; color: white; margin: 10px; padding: 10px;">
+				<spring:message code="label.link.delete.contest" text="Delete Contest"/>
+			</h3>
+			<p style="margin-left: 50px; margin-right: 50px; font-size: medium;">
+				<spring:message code="label.link.delete.contest.warning" text="Beware this operation cannot be reversed"/>
+				<br/>
+				<spring:message code="label.link.delete.contest.warning.input" text="To delete the contest input the contest name into the following box."/>
+				<br/>
+				<form method="POST" action="<%= contextPath + "/admissions/contest/" + contest.getExternalId() + "/delete" %>"
+						style="margin-left: 50px;">
+					<input id="checkContestName" type="text" name="contestName" size="50" onchange="checkActivateButton();"/>
+					<button id="deleteButton" class="btn btn-default warning-border" onclick="return deleteContest();" disabled="disabled" style="background-color: #DE2C2C; color: white;">
+						<spring:message code="label.link.delete.contest" text="Delete Contest"/>
+					</button>
+				</form>
+			</p>
+		</div>
+	</div>
 	<% } %>
 </div>
 
@@ -138,5 +163,34 @@
 				document.getElementById("undispose").style.visibility = "hidden";
 			}
 		});
+		function showDeleteContest() {
+			var d = document.getElementById("deleteContest");
+			if (d.style.display === 'none') {
+		    	d.style.display = "block";
+			} else {
+				d.style.display = 'none';
+			}
+		};
+		function checkActivateButton() {
+			var checkContestName = document.getElementById('checkContestName');
+			var deleteButton = document.getElementById('deleteButton');
+			if (checkContestName.value == contest.contestName) {
+				deleteButton.disabled = false;
+			} else {
+				deleteButton.disabled = true;
+			}
+			return true;
+		};
+		function deleteContest() {
+			var checkContestName = document.getElementById('checkContestName');
+			return checkContestName.value == contest.contestName;
+		};
 	</script>
 <% } %>
+<style>
+	.warning-border {
+		border-color: #DE2C2C;
+		border-width: thin;
+		border-style: solid;
+	}
+</style>

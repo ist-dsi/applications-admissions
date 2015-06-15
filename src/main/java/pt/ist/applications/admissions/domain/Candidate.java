@@ -50,4 +50,11 @@ public class Candidate extends Candidate_Base {
         setEditHash(UUID.randomUUID().toString());
     }
 
+    @Atomic
+    public void delete() {
+        DriveClient.deleteDirectory(getDirectory());
+        setContest(null);
+        deleteDomainObject();
+    }
+
 }

@@ -134,6 +134,14 @@ public class ApplicationsAdmissionsController {
         return "redirect:/admissions/contest/" + contest.getExternalId();
     }
 
+    @RequestMapping(value = "/contest/{contest}/delete", method = RequestMethod.POST)
+    public String contestDelete(@PathVariable Contest contest, final Model model) {
+        if (Contest.canManageContests()) {
+            contest.delete();
+        }
+        return "redirect:/admissions";
+    }
+
     @RequestMapping(value = "/candidate/{candidate}", method = RequestMethod.GET)
     public String candidate(@PathVariable Candidate candidate, @RequestParam(required = false) String hash, final Model model) {
         if (Contest.canManageContests() || candidate.verifyHash(hash)) {
@@ -181,6 +189,15 @@ public class ApplicationsAdmissionsController {
         } else {
             return "redirect:/admissions/candidate/" + candidate.getExternalId() + "?hash=" + hash;
         }
+    }
+
+    @RequestMapping(value = "/candidate/{candidate}/delete", method = RequestMethod.POST)
+    public String candidateDelete(@PathVariable Candidate candidate, final Model model) {
+        final String id = candidate.getContest().getExternalId();
+        if (Contest.canManageContests()) {
+            candidate.delete();
+        }
+        return "redirect:/admissions/contest/" + id;
     }
 
     private JsonObject toJsonObject(final Candidate c) {
