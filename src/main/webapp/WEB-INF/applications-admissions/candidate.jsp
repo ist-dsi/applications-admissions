@@ -194,6 +194,11 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
 		<tbody id="lettersOfRecommendation">
 		</tbody>
 	</table>
+	<% final String hashArg = request.getParameter("hash") == null ? "" : "?hash=" + request.getParameter("hash"); %>
+	<a href="<%= contextPath + "/admissions/candidate/" + candidate.getExternalId() + "/download" + hashArg %>"
+			class="btn btn-default">
+		<spring:message code="label.download.everything" text="Download Everything"/>
+	</a>
 </div>
 
 <script type="text/javascript">
@@ -202,7 +207,7 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
 	var contest = candidate.contest;
 	var items = candidate.items;
 	var letterItems = candidate.letterItems;
-	var hashArg = '<%= request.getParameter("hash") == null ? "" : "?hash=" + request.getParameter("hash")%>';
+	var hashArg = '<%= request.getParameter("hash") == null ? "" : "?hash=" + request.getParameter("hash") %>';
 	$(document).ready(function() {
 		$('#candidateName').html(candidate.name);
 		$('#candidateNumber').html(candidate.candidateNumber);

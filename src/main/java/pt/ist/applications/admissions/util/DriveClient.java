@@ -64,6 +64,14 @@ public class DriveClient {
         inputStream.close();
     }
 
+    public static void downloadDir(final String id, final HttpServletResponse response) throws IOException {
+        final InputStream inputStream = target("/api/docs/directory/" + id + "/download").get(InputStream.class);
+        final ServletOutputStream outputStream = response.getOutputStream();
+        IOUtils.copy(inputStream, outputStream);
+        outputStream.close();
+        inputStream.close();
+    }
+
     public static String createDirectory(final String parent, final String name) {
         final String putDir =
                 target("/api/docs/directory/" + parent).put(

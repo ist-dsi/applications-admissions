@@ -18,10 +18,14 @@
 
 --%>
 
+<%@page import="org.joda.time.DateTime"%>
 <%@page import="pt.ist.fenixframework.FenixFramework"%>
 <%@page import="com.google.gson.JsonObject"%>
 <%@page import="pt.ist.applications.admissions.domain.Contest"%>
 <jsp:directive.include file="headers.jsp" />
+<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/xdan/datetimepicker/master/jquery.datetimepicker.css"/ >
+<script type="text/javascript" src="https://cdn.rawgit.com/xdan/datetimepicker/master/jquery.js"></script>
+<script type="text/javascript" src="https://cdn.rawgit.com/xdan/datetimepicker/master/jquery.datetimepicker.js"></script>
 
 <div class="page-header">
 	<h1>
@@ -30,9 +34,9 @@
 	</h1>
 	<h4>
 		<span>
-			<span id="beginDate" style="color: gray;"></span>
+			<span id="contestBeginDate" style="color: gray;"></span>
 			-
-			<span id="endDate" style="color: gray;"></span>
+			<span id="contestEndDate" style="color: gray;"></span>
 		</span>
 	</h4>
 	<%
@@ -43,6 +47,18 @@
 	    if (Contest.canManageContests()) {
 	%>
 	<table class="table" style="margin-top: 10px; margin-bottom: 0px;">
+		<tr>
+			<td>
+				<button class="btn btn-default" onclick="showDeleteContest();">
+					<spring:message code="label.link.delete.contest" text="Delete Contest"/>
+				</button>
+				<button class="btn btn-default" onclick="showEditContest();">
+					<spring:message code="label.link.edit.contest" text="Edit Contest"/>
+				</button>
+			</td>
+			<td colspan="2">
+			</td>
+		</tr>
 		<tr>
 			<td><label class="control-label" for="editLink"
 				style="margin-right: 10px;"> <spring:message
@@ -70,11 +86,6 @@
 					</button>
 				</form>
 			</td>
-			<td>
-				<button class="btn btn-default" onclick="showDeleteContest();">
-					<spring:message code="label.link.delete.contest" text="Delete Contest"/>
-				</button>
-			</td>
 		</tr>
 	</table>
 	<div id="deleteContest" style="display: none; padding-left: 20px; padding-right: 20px;">
@@ -93,6 +104,51 @@
 					<button id="deleteButton" class="btn btn-default warning-border" onclick="return deleteContest();" disabled="disabled" style="background-color: #DE2C2C; color: white;">
 						<spring:message code="label.link.delete.contest" text="Delete Contest"/>
 					</button>
+				</form>
+			</p>
+		</div>
+	</div>
+	<div id="editContest" style="display: none; padding-left: 20px; padding-right: 20px;">
+		<div>
+			<h3 style="margin: 10px; padding: 10px;">
+				<spring:message code="label.link.edit.contest" text="Edit Contest"/>
+			</h3>
+			<p style="margin-left: 50px; margin-right: 50px; font-size: medium;">
+				<form method="POST" action="<%= contextPath + "/admissions/contest/" + contest.getExternalId() + "/edit" %>"
+						style="margin-left: 50px;" class="form-horizontal" id="editForm">
+					<div class="form-group">
+						<label class="control-label col-sm-2" for="contestName">
+							<spring:message code="label.applications.admissions.contest.name" text="label.applications.admissions.contest.name" />
+						</label>
+						<div class="col-sm-10">
+							<input name="contestName" type="text" class="form-control" id="contestName" required="required" value="<%= contest.getContestName() %>"/>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-sm-2" for="beginDate">
+							<spring:message code="label.applications.admissions.contest.beginDate" text="label.applications.admissions.contest.beginDate" />
+						</label>
+						<div class="col-sm-10">
+							<% final DateTime bdt = contest.getBeginDate(); %>
+							<input name="beginDate" type="text" class="form-control" id="beginDate" required="required" value="<%= bdt == null ? "" : bdt.toString("yyyy-MM-dd HH:mm") %>"/>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-sm-2" for="endDate">
+							<spring:message code="label.applications.admissions.contest.endDate" text="label.applications.admissions.contest.endDate" />
+						</label>
+						<div class="col-sm-10">
+							<% final DateTime edt = contest.getEndDate(); %>
+							<input name="endDate" type="text" class="form-control" id="endDate" required="required" value="<%= edt == null ? "" : edt.toString("yyyy-MM-dd HH:mm") %>"/>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-10 col-sm-offset-2">
+							<button id="submitRequest" class="btn btn-default">
+								<spring:message code="label.link.edit.contest" text="Edit Contest"/>
+							</button>
+						</div>
+					</div>
 				</form>
 			</p>
 		</div>
@@ -129,8 +185,8 @@
 	var hashArg = '<%= request.getParameter("hash") == null ? "" : "?hash=" + request.getParameter("hash")%>';
 	$(document).ready(function() {
 		$('#contestName').html(contest.contestName);
-		$('#beginDate').html(contest.beginDate);
-		$('#endDate').html(contest.endDate);
+		$('#contestBeginDate').html(contest.beginDate);
+		$('#contestEndDate').html(contest.endDate);
 
 		if (candidates.length == 0) {
 			document.getElementById("NoResults").style.display = 'block';
@@ -141,7 +197,7 @@
             row = $('<tr/>').appendTo($('#candidateList'));
             row.append($('<td/>').html(c.candidateNumber));
             row.append($('<td/>').html('<a href="' + contextPath + '/admissions/candidate/' + c.id + hashArg + '">' + c.name + '</a>'));
-            row.append($('<td/>').html(''));
+            row.append($('<td/>').html('<a href="' + contextPath + '/admissions/candidate/' + c.id + '/download' + hashArg + '" class="btn btn-default">Download</a>'));
         });
 	});
 	function goToRegisterCandidate() {
@@ -162,9 +218,38 @@
 			} else {
 				document.getElementById("undispose").style.visibility = "hidden";
 			}
+			jQuery('#beginDate').datetimepicker({
+				format: 'Y-m-d H:i'
+				});
+			jQuery('#endDate').datetimepicker({
+				format: 'Y-m-d H:i'
+				});
+			$('#editForm').submit(function () {
+				$.ajax({
+					url: $(this).attr('action'),
+					type: 'POST',
+					data: JSON.stringify($(this).serializeArray()),
+					contentType: 'application/json',
+					success: function (data) {
+						location.reload(true);
+					},
+					error: function (jqXHR, textStatus, errorThrown) {
+						alert('An error has occured!! :-(' + errorThrown)
+					}
+				})
+				return false
+			});
 		});
 		function showDeleteContest() {
 			var d = document.getElementById("deleteContest");
+			if (d.style.display === 'none') {
+		    	d.style.display = "block";
+			} else {
+				d.style.display = 'none';
+			}
+		};
+		function showEditContest() {
+			var d = document.getElementById("editContest");
 			if (d.style.display === 'none') {
 		    	d.style.display = "block";
 			} else {

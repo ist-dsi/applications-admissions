@@ -17,9 +17,7 @@ public class Contest extends Contest_Base {
 
     public Contest(final String contestName, final DateTime beginDate, final DateTime endDate) {
         super();
-        setContestName(contestName);
-        setBeginDate(beginDate);
-        setEndDate(endDate);
+        edit(contestName, beginDate, endDate);
         setBennu(Bennu.getInstance());
         setDirectory(DriveClient.createDirectory(contestName));
     }
@@ -64,6 +62,13 @@ public class Contest extends Contest_Base {
         getCandidateSet().forEach(Candidate::delete);
         setBennu(null);
         deleteDomainObject();
+    }
+
+    @Atomic
+    public void edit(final String contestName, final DateTime beginDate, final DateTime endDate) {
+        setContestName(contestName);
+        setBeginDate(beginDate);
+        setEndDate(endDate);
     }
 
 }

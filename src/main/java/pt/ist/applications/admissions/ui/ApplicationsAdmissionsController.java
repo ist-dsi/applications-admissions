@@ -142,6 +142,21 @@ public class ApplicationsAdmissionsController {
         return "redirect:/admissions";
     }
 
+    @RequestMapping(value = "/contest/{contest}/edit", method = RequestMethod.POST)
+    public String contestEdit(@PathVariable Contest contest, final Model model, @RequestBody final String stuff) {
+        if (Contest.canManageContests()) {
+            final DateTimeFormatter formatter = DateTimeFormat.forPattern(Utils.DATE_TIME_PATTERN);
+
+            final Map<String, String> map = Utils.toMap(stuff, "name", "value");
+            final String contestName = map.get("contestName");
+            final DateTime beginDate = formatter.parseDateTime(map.get("beginDate"));
+            final DateTime endDate = formatter.parseDateTime(map.get("endDate"));
+
+            contest.edit(contestName, beginDate, endDate);
+        }
+        return "redirect:/admissions/contest/" + contest.getExternalId();
+    }
+
     @RequestMapping(value = "/candidate/{candidate}", method = RequestMethod.GET)
     public String candidate(@PathVariable Candidate candidate, @RequestParam(required = false) String hash, final Model model) {
         if (Contest.canManageContests() || candidate.verifyHash(hash)) {
@@ -178,6 +193,17 @@ public class ApplicationsAdmissionsController {
             candidate.generateHash();
         }
         return "redirect:/admissions/candidate/" + candidate.getExternalId();
+    }
+
+    @RequestMapping(value = "/candidate/{candidate}/download", method = RequestMethod.GET)
+    public String candidateDownload(@PathVariable Candidate candidate, @RequestParam(required = false) String hash, final Model model,
+            final HttpServletResponse response) throws IOException {
+        if (Contest.canManageContests() || candidate.getContest().verifyHashForView(hash)) {
+            DriveClient.downloadDir(candidate.getDirectory(), response);
+            return null;
+        } else {
+            return "redirect:/admissions/candidate/" + candidate.getExternalId() + "?hash=" + hash;
+        }
     }
 
     @RequestMapping(value = "/candidate/{candidate}/download/{id}", method = RequestMethod.GET)
