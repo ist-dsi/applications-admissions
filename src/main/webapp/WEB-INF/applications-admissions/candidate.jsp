@@ -142,6 +142,7 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
 			<th><spring:message code="label.file.created" text="Created"/></th>
 			<th><spring:message code="label.file.modified" text="Modified"/></th>
 			<th></th>
+			<th></th>
 		</tr>
 	</thead>
 	<tbody id="dirContents">
@@ -224,8 +225,11 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
             row.append($('<td/>').html(item.size));
             row.append($('<td/>').html(created.format("YYYY-MM-DD HH:mm")));
             row.append($('<td/>').html(modified.format("YYYY-MM-DD HH:mm")));
-            row.append($('<td/>').html('<a href="' + contextPath + '/admissions/candidate/' + candidate.id + '/download/' + item.id
-            		+ hashArg +'" class="btn btn-default">Download</a>'));
+            row.append($('<td/>').html(
+            		'<a href="' + contextPath + '/admissions/candidate/' + candidate.id + '/download/' + item.id
+            			+ hashArg +'" class="btn btn-default">Download</a>'
+            		+ '<a href="#" onclick="deleteItem(' + candidate.id + ', ' + item.id + ')" class="btn btn-default" style="margin-left: 15px;">Delete</a>'
+            		));
         });
         $(letterItems).each(function(i, item) {
         	var created = moment(item.created);
@@ -236,12 +240,25 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
             row.append($('<td/>').html(created.format("YYYY-MM-DD HH:mm")));
             row.append($('<td/>').html(modified.format("YYYY-MM-DD HH:mm")));
             row.append($('<td/>').html('<a href="' + contextPath + '/admissions/candidate/' + candidate.id + '/download/' + item.id
-            		+ hashArg +'" class="btn btn-default">Download</a>'));
+            		+ hashArg + '" class="btn btn-default">Download</a>'));
         });
         if (letterItems) {
         	document.getElementById("lettersPart").style.visibility = "visible";
         }
 	});
+	function deleteItem(candidateId, itemId) {
+		$.ajax({
+			url: contextPath + '/admissions/candidate/' + candidateId + '/delete/' + itemId + hashArg,
+			type: 'POST',
+			contentType: 'application/json',
+			success: function (data) {
+				location.reload(true);
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+				alert('An error has occured!! :-(' + errorThrown)
+			}
+		});
+	};
 </script>
 <% if (Contest.canManageContests()) { %>
 	<script type="text/javascript">

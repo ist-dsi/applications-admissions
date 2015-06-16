@@ -20,6 +20,7 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -94,12 +95,27 @@ public class DriveClient {
         target("/api/docs/directory/" + directory).delete();
     }
 
+    public static void deleteFile(final String file) {
+        target("/api/docs/file/" + file).delete();
+    }
+
     private static Builder target(final String path) {
         return target(path, getAccessToken());
     }
 
     private static Builder target(final String path, final String token) {
         return CLIENT.target(getConfig().driveUrl() + path).queryParam("access_token", token).request();
+    }
+
+    public static boolean dirContainsItem(final String directory, final String item) {
+        for (final JsonElement e : listDirectory(directory)) {
+            final JsonObject o = e.getAsJsonObject();
+            final JsonElement id = o.get("id");
+            if (id != null && id.getAsString().equals(item)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

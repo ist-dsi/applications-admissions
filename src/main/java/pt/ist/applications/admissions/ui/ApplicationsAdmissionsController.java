@@ -171,7 +171,8 @@ public class ApplicationsAdmissionsController {
             @RequestParam String name, final Model model) {
         if (candidate.verifyHashForEdit(hash)) {
             try {
-                DriveClient.upload(candidate.getDirectoryForCandidateDocuments(), name, file.getInputStream(), file.getContentType());
+                DriveClient.upload(candidate.getDirectoryForCandidateDocuments(), name, file.getInputStream(),
+                        file.getContentType());
             } catch (final IOException e) {
                 throw new Error(e);
             }
@@ -196,8 +197,8 @@ public class ApplicationsAdmissionsController {
     }
 
     @RequestMapping(value = "/candidate/{candidate}/download", method = RequestMethod.GET)
-    public String candidateDownload(@PathVariable Candidate candidate, @RequestParam(required = false) String hash, final Model model,
-            final HttpServletResponse response) throws IOException {
+    public String candidateDownload(@PathVariable Candidate candidate, @RequestParam(required = false) String hash,
+            final Model model, final HttpServletResponse response) throws IOException {
         if (Contest.canManageContests() || candidate.getContest().verifyHashForView(hash)) {
             DriveClient.downloadDir(candidate.getDirectory(), response);
             return null;
@@ -207,8 +208,8 @@ public class ApplicationsAdmissionsController {
     }
 
     @RequestMapping(value = "/candidate/{candidate}/download/{id}", method = RequestMethod.GET)
-    public String download(@PathVariable Candidate candidate, @PathVariable String id, @RequestParam(required=false) String hash,
-            final HttpServletResponse response) throws IOException {
+    public String download(@PathVariable Candidate candidate, @PathVariable String id,
+            @RequestParam(required = false) String hash, final HttpServletResponse response) throws IOException {
         if (Contest.canManageContests() || candidate.verifyHash(hash)) {
             DriveClient.download(id, response);
             return null;
@@ -222,6 +223,16 @@ public class ApplicationsAdmissionsController {
         final String id = candidate.getContest().getExternalId();
         if (Contest.canManageContests()) {
             candidate.delete();
+        }
+        return "redirect:/admissions/contest/" + id;
+    }
+
+    @RequestMapping(value = "/candidate/{candidate}/delete/{item}", method = RequestMethod.POST)
+    public String candidateDeleteItem(@PathVariable Candidate candidate, @PathVariable String item, @RequestParam(
+            required = false) String hash, final Model model) {
+        final String id = candidate.getContest().getExternalId();
+        if (candidate.verifyHashForEdit(hash)) {
+            candidate.deleteItem(item);
         }
         return "redirect:/admissions/contest/" + id;
     }

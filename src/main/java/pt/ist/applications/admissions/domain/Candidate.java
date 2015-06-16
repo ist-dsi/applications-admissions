@@ -57,4 +57,11 @@ public class Candidate extends Candidate_Base {
         deleteDomainObject();
     }
 
+    public void deleteItem(final String item) {
+        // Make sure the item 'belongs' to this candidate before we delete it. 
+        if (DriveClient.dirContainsItem(getDirectoryForCandidateDocuments(), item)) {
+            DriveClient.deleteFile(item);
+        }
+    }
+
 }
