@@ -10,6 +10,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.io.IOUtils;
 import org.fenixedu.bennu.ApplicationsAdmissionsConfiguration;
@@ -57,20 +58,28 @@ public class DriveClient {
         }
     }
 
-    public static void download(final String id, final HttpServletResponse response) throws IOException {
-        final InputStream inputStream = target("/api/docs/file/" + id + "/download").get(InputStream.class);
+    private static void download(final String path, final HttpServletResponse response) throws IOException {
+        final Response r = target(path).get();
+        setHeader(response, r, "Content-Disposition");
+        setHeader(response, r, "Date");
+        setHeader(response, r, "Content-Type");
+        final InputStream inputStream = (InputStream) r.getEntity();
         final ServletOutputStream outputStream = response.getOutputStream();
         IOUtils.copy(inputStream, outputStream);
         outputStream.close();
         inputStream.close();
     }
 
+    public static void downloadFile(final String id, final HttpServletResponse response) throws IOException {
+        download("/api/docs/file/" + id + "/download", response);
+    }
+
+    private static void setHeader(final HttpServletResponse response, final Response r, final String header) {
+        response.setHeader(header, r.getHeaderString(header));
+    }
+
     public static void downloadDir(final String id, final HttpServletResponse response) throws IOException {
-        final InputStream inputStream = target("/api/docs/directory/" + id + "/download").get(InputStream.class);
-        final ServletOutputStream outputStream = response.getOutputStream();
-        IOUtils.copy(inputStream, outputStream);
-        outputStream.close();
-        inputStream.close();
+        download("/api/docs/directory/" + id + "/download", response);
     }
 
     public static String createDirectory(final String parent, final String name) {

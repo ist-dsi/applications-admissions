@@ -211,7 +211,7 @@ public class ApplicationsAdmissionsController {
     public String download(@PathVariable Candidate candidate, @PathVariable String id,
             @RequestParam(required = false) String hash, final HttpServletResponse response) throws IOException {
         if (Contest.canManageContests() || candidate.verifyHash(hash)) {
-            DriveClient.download(id, response);
+            DriveClient.downloadFile(id, response);
             return null;
         } else {
             return "redirect:/admissions/candidate/" + candidate.getExternalId() + "?hash=" + hash;
