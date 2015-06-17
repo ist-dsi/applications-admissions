@@ -2,6 +2,7 @@ package pt.ist.applications.admissions.domain;
 
 import java.util.UUID;
 
+import org.fenixedu.bennu.ApplicationsAdmissionsConfiguration;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.groups.DynamicGroup;
@@ -9,8 +10,8 @@ import org.fenixedu.bennu.core.security.Authenticate;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
-import pt.ist.applications.admissions.util.DriveClient;
 import pt.ist.applications.admissions.util.Utils;
+import pt.ist.drive.sdk.ClientFactory;
 import pt.ist.fenixframework.Atomic;
 
 public class Contest extends Contest_Base {
@@ -19,7 +20,8 @@ public class Contest extends Contest_Base {
         super();
         edit(contestName, beginDate, endDate);
         setBennu(Bennu.getInstance());
-        setDirectory(DriveClient.createDirectory(contestName));
+        setDirectory(ClientFactory.configurationDriveClient().createDirectory(contestName,
+                ApplicationsAdmissionsConfiguration.getConfiguration().contestDir()));
     }
 
     @Atomic

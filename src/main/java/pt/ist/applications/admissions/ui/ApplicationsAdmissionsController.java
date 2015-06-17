@@ -39,8 +39,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import pt.ist.applications.admissions.domain.Candidate;
 import pt.ist.applications.admissions.domain.Contest;
-import pt.ist.applications.admissions.util.DriveClient;
 import pt.ist.applications.admissions.util.Utils;
+import pt.ist.drive.sdk.ClientFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -171,8 +171,8 @@ public class ApplicationsAdmissionsController {
             @RequestParam String name, final Model model) {
         if (candidate.verifyHashForEdit(hash)) {
             try {
-                DriveClient.upload(candidate.getDirectoryForCandidateDocuments(), name, file.getInputStream(),
-                        file.getContentType());
+                ClientFactory.configurationDriveClient().upload(candidate.getDirectoryForCandidateDocuments(), name,
+                        file.getInputStream(), file.getContentType());
             } catch (final IOException e) {
                 throw new Error(e);
             }
@@ -200,7 +200,7 @@ public class ApplicationsAdmissionsController {
     public String candidateDownload(@PathVariable Candidate candidate, @RequestParam(required = false) String hash,
             final Model model, final HttpServletResponse response) throws IOException {
         if (Contest.canManageContests() || candidate.getContest().verifyHashForView(hash)) {
-            DriveClient.downloadDir(candidate.getDirectory(), response);
+            ClientFactory.configurationDriveClient().downloadDir(candidate.getDirectory(), response);
             return null;
         } else {
             return "redirect:/admissions/candidate/" + candidate.getExternalId() + "?hash=" + hash;
@@ -211,7 +211,7 @@ public class ApplicationsAdmissionsController {
     public String download(@PathVariable Candidate candidate, @PathVariable String id,
             @RequestParam(required = false) String hash, final HttpServletResponse response) throws IOException {
         if (Contest.canManageContests() || candidate.verifyHash(hash)) {
-            DriveClient.downloadFile(id, response);
+            ClientFactory.configurationDriveClient().downloadFile(id, response);
             return null;
         } else {
             return "redirect:/admissions/candidate/" + candidate.getExternalId() + "?hash=" + hash;
@@ -252,9 +252,10 @@ public class ApplicationsAdmissionsController {
         final JsonObject object = toJsonObject(c);
         final Contest contest = c.getContest();
         object.add("contest", toJsonObject(contest));
-        object.add("items", DriveClient.listDirectory(c.getDirectoryForCandidateDocuments()));
+        object.add("items", ClientFactory.configurationDriveClient().listDirectory(c.getDirectoryForCandidateDocuments()));
         if (Contest.canManageContests() || contest.verifyHashForView(hash)) {
-            object.add("letterItems", DriveClient.listDirectory(c.getDirectoryForLettersOfRecomendation()));
+            object.add("letterItems",
+                    ClientFactory.configurationDriveClient().listDirectory(c.getDirectoryForLettersOfRecomendation()));
         }
         return object;
     }

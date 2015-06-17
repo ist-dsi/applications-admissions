@@ -28,18 +28,6 @@ public class ApplicationsAdmissionsConfiguration {
 
     @ConfigurationManager(description = "Applications Admissions Configuration")
     public interface ConfigurationProperties {
-        @ConfigurationProperty(key = "drive.url", defaultValue = "http://localhost:8080/drive")
-        public String driveUrl();
-
-        @ConfigurationProperty(key = "drive.client.refresh.token")
-        public String refreshToken();
-
-        @ConfigurationProperty(key = "drive.client.app.id")
-        public String clientAppId();
-
-        @ConfigurationProperty(key = "drive.client.app.user")
-        public String clientAppUser();
-
         @ConfigurationProperty(key = "drive.contest.dir")
         public String contestDir();
     }
