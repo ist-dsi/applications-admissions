@@ -20,8 +20,8 @@ public class Contest extends Contest_Base {
         super();
         edit(contestName, beginDate, endDate);
         setBennu(Bennu.getInstance());
-        setDirectory(ClientFactory.configurationDriveClient().createDirectory(contestName,
-                ApplicationsAdmissionsConfiguration.getConfiguration().contestDir()));
+        setDirectory(ClientFactory.configurationDriveClient().createDirectory(
+                ApplicationsAdmissionsConfiguration.getConfiguration().contestDir(), contestName));
     }
 
     @Atomic
