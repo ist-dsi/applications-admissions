@@ -228,7 +228,9 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
             row.append($('<td/>').html(
             		'<a href="' + contextPath + '/admissions/candidate/' + candidate.id + '/download/' + item.id
             			+ hashArg +'" class="btn btn-default">Download</a>'
-            		+ '<a href="#" onclick="deleteItem(' + candidate.id + ', ' + item.id + ')" class="btn btn-default" style="margin-left: 15px;">Delete</a>'
+            		<% if (candidate.verifyHashForEdit(hash)) { %>
+            		  + '<a href="#" onclick="deleteItem(' + candidate.id + ', ' + item.id + ')" class="btn btn-default" style="margin-left: 15px;">Delete</a>'
+            		<% } %>
             		));
         });
         $(letterItems).each(function(i, item) {
