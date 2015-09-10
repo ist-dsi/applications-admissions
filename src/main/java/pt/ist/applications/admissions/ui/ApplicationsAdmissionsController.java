@@ -23,6 +23,9 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.tika.mime.MimeType;
+import org.apache.tika.mime.MimeTypeException;
+import org.apache.tika.mime.MimeTypes;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.spring.portal.SpringApplication;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
@@ -37,13 +40,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.google.common.base.Strings;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 import pt.ist.applications.admissions.domain.Candidate;
 import pt.ist.applications.admissions.domain.Contest;
 import pt.ist.applications.admissions.util.Utils;
 import pt.ist.drive.sdk.ClientFactory;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 @SpringApplication(group = "anyone", path = "applications", title = "title.applications.admissions",
         hint = "applications-admissions")
@@ -171,13 +175,39 @@ public class ApplicationsAdmissionsController {
             @RequestParam String name, final Model model) {
         if (candidate.verifyHashForEdit(hash)) {
             try {
-                ClientFactory.configurationDriveClient().upload(candidate.getDirectoryForCandidateDocuments(), name,
-                        file.getInputStream(), file.getContentType());
+                final String contentType = file.getContentType();
+                final String filename = chooseFileName(name, file.getOriginalFilename(), contentType);
+                ClientFactory.configurationDriveClient().upload(candidate.getDirectoryForCandidateDocuments(), filename,
+                        file.getInputStream(), contentType);
             } catch (final IOException e) {
                 throw new Error(e);
             }
         }
         return "redirect:/admissions/candidate/" + candidate.getExternalId() + "?hash=" + hash;
+    }
+
+    private String chooseFileName(final String name, final String originalFilename, final String contentType) {
+        if (name.indexOf('.') < 0) {
+            if (!Strings.isNullOrEmpty(originalFilename)) {
+                final int i = originalFilename.lastIndexOf('.');
+                if (i >= 0) {
+                    return name + originalFilename.substring(i);
+                }
+            }
+            final MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
+            try {
+                MimeType type = allTypes.forName(contentType);
+                if (type != null) {
+                    for (final String ext : type.getExtensions()) {
+                        return name + "." + ext;
+                    }
+                }
+            } catch (final MimeTypeException ex) {
+                // No problem, just don't add an extension
+            }
+
+        }
+        return name;
     }
 
     @RequestMapping(value = "/candidate/{candidate}/undispose", method = RequestMethod.POST)
