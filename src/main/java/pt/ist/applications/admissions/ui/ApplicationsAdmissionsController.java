@@ -267,11 +267,24 @@ public class ApplicationsAdmissionsController {
         return "redirect:/admissions/contest/" + id;
     }
 
+    @RequestMapping(value = "/candidate/{candidate}/submitApplication", method = RequestMethod.POST)
+    public String submitApplication(@PathVariable Candidate candidate, @RequestParam(required = false) String hash, final Model model) {
+        if (candidate.verifyHashForEdit(hash)) {
+            candidate.submitApplication();
+        }
+        return "redirect:/admissions/candidate/" + candidate.getExternalId() + "?hash=" + hash;
+    }
+    
     private JsonObject toJsonObject(final Candidate c) {
         final JsonObject object = new JsonObject();
         object.addProperty("id", c.getExternalId());
         object.addProperty("candidateNumber", c.getCandidateNumber());
         object.addProperty("name", c.getName());
+        final DateTime sealDate = c.getSealDate();
+        if (sealDate != null) {
+            object.addProperty("sealDate", sealDate.toString(Utils.DATE_TIME_PATTERN));
+            object.addProperty("seal", c.getSeal());
+        }
         if (Contest.canManageContests()) {
             object.addProperty("editHash", c.getEditHash());
         }
@@ -286,6 +299,9 @@ public class ApplicationsAdmissionsController {
         if (Contest.canManageContests() || contest.verifyHashForView(hash)) {
             object.add("letterItems",
                     ClientFactory.configurationDriveClient().listDirectory(c.getDirectoryForLettersOfRecomendation()));
+        }
+        if (c.getSealDate() != null) {
+            object.addProperty("calculatedDigest", c.calculateDigest());
         }
         return object;
     }

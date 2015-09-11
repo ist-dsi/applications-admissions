@@ -146,7 +146,7 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
 		</tr>
 	</thead>
 	<tbody id="dirContents">
-		<% if (candidate.verifyHashForEdit(hash)) { %>
+		<% if (candidate.verifyHashForEdit(hash) && candidate.getSealDate() == null) { %>
 			<tr>
 				<td colspan="6">
 					<form method="POST" enctype="multipart/form-data" class="form-horizontal" style="margin-left: 50px;"
@@ -176,7 +176,46 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
 						</div>
 					</form>
 				</td>
-			</tr>	
+			</tr>
+            <tr>
+               <td colspan="6">
+                    <div style="margin-left: 50px;">
+                        <div class="infobox_warning">
+                            <spring:message code="label.link.seal.instructions" text="Seal Instructions"/>
+                        </div>
+                        <form method="POST" action="<%= contextPath + "/admissions/candidate/" + candidate.getExternalId() + "/submitApplication" %>">
+                            <input type="hidden" name="hash" value="<%= hash %>"/>
+                            <spring:message var="confirmSubmitApplicationMessage" code="label.link.seal.confirm" text="Confirm Seal"/>
+                            <button class="btn btn-default" onclick="return confirm('${confirmSubmitApplicationMessage}');">
+                                <spring:message code="label.link.seal" text="Seal"/>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+		<% } %>
+		<% if (candidate.getSealDate() != null) { %>
+                <tr>
+                   <td colspan="6">
+                        <div style="margin-left: 50px;">
+                            <div id="sealBox">
+                                <spring:message code="label.application.sealed" text="This application is sealed"/>
+                                <ul>
+                                    <li>
+                                        <span id="sealDate"></span>
+                                    </li>
+                                    <li>
+                                        <span id="seal"></span>
+                                    </li>
+                                </ul>
+                                <p class="sealHasBeenBroken">
+                                    <spring:message var="sealHasBeenBrokenMessage" code="label.application.seal.broken" text="Seal Broken"/>                                        
+                                    <span id="sealHasBeenBroken"></span>
+                                </p>
+                            </div>                            
+                        </div>
+                    </td>
+                </tr>
 		<% } %>
 	</tbody>
 </table>
@@ -217,6 +256,14 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
 		$('#contestName').html(contest.contestName);
 		$('#beginDate').html(contest.beginDate);
 		$('#endDate').html(contest.endDate);
+		$('#sealDate').html(candidate.sealDate);
+		$('#seal').html(candidate.seal);
+		if (typeof candidate.seal !== 'undefined' && candidate.seal.localeCompare(candidate.calculatedDigest) != 0) {
+			document.getElementById('sealBox').className = 'infobox_warning';
+			$('#sealHasBeenBroken').html('${sealHasBeenBrokenMessage}');
+		} else if (typeof candidate.seal !== 'undefined' && candidate.seal.localeCompare(candidate.calculatedDigest) == 0) {
+			document.getElementById('sealBox').className = 'infobox5';
+		}
         $(items).each(function(i, item) {
         	var created = moment(item.created);
         	var modified = moment(item.modified);
@@ -228,7 +275,7 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
             row.append($('<td/>').html(
             		'<a href="' + contextPath + '/admissions/candidate/' + candidate.id + '/download/' + item.id
             			+ hashArg +'" class="btn btn-default">Download</a>'
-            		<% if (candidate.verifyHashForEdit(hash)) { %>
+            		<% if (candidate.verifyHashForEdit(hash) && candidate.getSealDate() == null) { %>
             		  + '<a href="#" onclick="deleteItem(' + candidate.id + ', ' + item.id + ')" class="btn btn-default" style="margin-left: 15px;">Delete</a>'
             		<% } %>
             		));
@@ -306,6 +353,12 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
 		border-color: #DE2C2C;
 		border-width: thin;
 		border-style: solid;
+	}
+	div .infobox5 {
+	   border-color: #33CC00;
+	}
+	.sealHasBeenBroken {
+	   font-size: large;
 	}
 </style>
 <% } %>
