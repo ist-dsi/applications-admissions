@@ -183,13 +183,31 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
                         <div class="infobox_warning">
                             <spring:message code="label.link.seal.instructions" text="Seal Instructions"/>
                         </div>
-                        <form method="POST" action="<%= contextPath + "/admissions/candidate/" + candidate.getExternalId() + "/submitApplication" %>">
-                            <input type="hidden" name="hash" value="<%= hash %>"/>
-                            <spring:message var="confirmSubmitApplicationMessage" code="label.link.seal.confirm" text="Confirm Seal"/>
-                            <button class="btn btn-default" onclick="return confirm('${confirmSubmitApplicationMessage}');">
-                                <spring:message code="label.link.seal" text="Seal"/>
-                            </button>
-                        </form>
+                        <button id="firstSubmitButton" class="btn btn-default" onclick="toggleConfirmSubmit();">
+                            <spring:message code="label.link.seal" text="Seal"/>
+                        </button>
+                        <spring:message var="confirmSubmitApplicationMessage" code="label.link.seal.confirm" text="Confirm Seal"/>                            </button>
+                        <div id="confirmSubmit" style="display: none;">
+                            <div class="warning-border">
+                                <h3 style="background-color: #DE2C2C; color: white; margin: 10px; padding: 10px;">
+                                    <spring:message code="label.link.seal.confirm" text="Confirm Seal"/>
+                                </h3>
+                                <p style="margin-left: 50px; margin-right: 50px; font-size: medium;">
+                                    <form method="POST" action="<%= contextPath + "/admissions/candidate/" + candidate.getExternalId() + "/submitApplication" %>">
+                                        <input type="hidden" name="hash" value="<%= hash %>"/>
+                                        <spring:message var="confirmSubmitApplicationMessage" code="label.link.seal.confirm" text="Confirm Seal"/>
+                                        <button id="firstSubmitButton" class="btn btn-default" onclick="toggleConfirmSubmit(); return false;"
+                                                style="margin-left: 10px;">
+                                            <spring:message code="label.cancel" text="Cancel"/>
+                                        </button>
+                                        <spring:message var="confirmSubmitApplicationMessage" code="label.link.seal.confirm" text="Confirm Seal"/>                            </button>
+                                        <button class="btn btn-default">
+                                            <spring:message code="label.yes" text="Seal"/>
+                                        </button>
+                                    </form>
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </td>
             </tr>
@@ -308,6 +326,17 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
 			}
 		});
 	};
+    function toggleConfirmSubmit() {
+        var d = document.getElementById("confirmSubmit");
+        var b = document.getElementById("firstSubmitButton");
+        if (d.style.display === 'none') {
+            d.style.display = "block";
+            b.style.display = 'none';
+        } else {
+            d.style.display = 'none';
+            b.style.display = "block";
+        }
+    };
 </script>
 <% if (Contest.canManageContests()) { %>
 	<script type="text/javascript">
