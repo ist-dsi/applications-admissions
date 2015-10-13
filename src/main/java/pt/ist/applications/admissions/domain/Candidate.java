@@ -88,17 +88,19 @@ public class Candidate extends Candidate_Base {
     }
 
     public String calculateDigest() {
+        final String dateTimeFormat = "yyyy-MM-dd HH:mm:ss";
+
         final StringBuilder input = new StringBuilder();
 
-        input.append(getSealDate().toString("yyyy-MM-dd HH:mm:ss"));
+        input.append(getSealDate().toString(dateTimeFormat));
         input.append(getCandidateNumber());
         input.append(getContest().getContestName());
 
         final JsonArray ja = ClientFactory.configurationDriveClient().listDirectory(getDirectoryForCandidateDocuments());
         for (final JsonObject jo : sortBy(ja, "name", "modified", "size")) {
-            input.append(jo.get("name"));
-            input.append(jo.get("size"));
-            input.append(jo.get("modified"));
+            input.append(jo.get("name").getAsString());
+            input.append(jo.get("size").getAsString());
+            input.append(new DateTime(jo.get("modified").getAsLong()).toString(dateTimeFormat));
         }
 
         try {
