@@ -274,7 +274,16 @@ public class ApplicationsAdmissionsController {
         }
         return "redirect:/admissions/candidate/" + candidate.getExternalId() + "?hash=" + hash;
     }
-    
+
+    @RequestMapping(value = "/candidate/{candidate}/logs", method = RequestMethod.GET)
+    public String candidateLogs(@PathVariable Candidate candidate, final Model model) {
+        if (Contest.canManageContests()) {
+            model.addAttribute("candidate", toJsonObjectWithLogs(candidate));
+            return "applications-admissions/candidateLogs";
+        }
+        return "redirect:/admissions/contest/" + candidate.getContest().getExternalId();
+    }
+
     private JsonObject toJsonObject(final Candidate c) {
         final JsonObject object = new JsonObject();
         object.addProperty("id", c.getExternalId());
@@ -303,6 +312,15 @@ public class ApplicationsAdmissionsController {
         if (c.getSealDate() != null) {
             object.addProperty("calculatedDigest", c.calculateDigest());
         }
+        return object;
+    }
+
+    private JsonObject toJsonObjectWithLogs(final Candidate c) {
+        final JsonObject object = toJsonObject(c);
+        final Contest contest = c.getContest();
+        object.add("contest", toJsonObject(contest));
+        object.add("logs", ClientFactory.configurationDriveClient().logs(c.getDirectoryForCandidateDocuments(), Integer.MAX_VALUE));
+        object.add("recommendationLogs", ClientFactory.configurationDriveClient().logs(c.getDirectoryForLettersOfRecomendation(), Integer.MAX_VALUE));
         return object;
     }
 

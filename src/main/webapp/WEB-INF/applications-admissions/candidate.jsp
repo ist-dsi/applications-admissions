@@ -259,6 +259,12 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
 			class="btn btn-default">
 		<spring:message code="label.download.everything" text="Download Everything"/>
 	</a>
+	<% if (Contest.canManageContests()) { %>
+        <a href="<%= contextPath + "/admissions/candidate/" + candidate.getExternalId() + "/logs" %>"
+                class="btn btn-default">
+            <spring:message code="label.logs.view" text="View Logs"/>
+        </a>
+    <% } %>
 </div>
 
 <script type="text/javascript">
