@@ -53,7 +53,7 @@ public class Candidate extends Candidate_Base {
     }
 
     public boolean verifyHashForView(final String hash) {
-        return getContest().verifyHashForView(hash);
+        return Utils.match(getEditHash(), hash) || getContest().verifyHashForView(hash);
     }
 
     @Atomic
