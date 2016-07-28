@@ -9,6 +9,9 @@ import org.fenixedu.bennu.core.groups.DynamicGroup;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.springframework.context.MessageSource;
+
+import com.google.common.base.Objects;
 
 import pt.ist.applications.admissions.util.Utils;
 import pt.ist.drive.sdk.ClientFactory;
@@ -20,8 +23,8 @@ public class Contest extends Contest_Base {
         super();
         edit(contestName, beginDate, endDate);
         setBennu(Bennu.getInstance());
-        setDirectory(ClientFactory.configurationDriveClient().createDirectory(
-                ApplicationsAdmissionsConfiguration.getConfiguration().contestDir(), contestName));
+        setDirectory(ClientFactory.configurationDriveClient()
+                .createDirectory(ApplicationsAdmissionsConfiguration.getConfiguration().contestDir(), contestName));
     }
 
     @Atomic
@@ -30,8 +33,14 @@ public class Contest extends Contest_Base {
     }
 
     @Atomic
-    public Candidate registerCandidate(final String name) {
-        return canManageContests() ? new Candidate(this, name) : null;
+    public Candidate registerCandidate(final String name, String email, String contestPath, MessageSource messageSource) {
+        Candidate candidate = getCandidateSet().stream().filter(c -> Objects.equal(email, c.getEmail())).findAny().orElse(null);
+        if (candidate == null) {
+            candidate = new Candidate(this, name, email, contestPath, messageSource);
+        } else {
+            candidate.generateHash(contestPath, messageSource);
+        }
+        return candidate;
     }
 
     public static boolean canManageContests() {
