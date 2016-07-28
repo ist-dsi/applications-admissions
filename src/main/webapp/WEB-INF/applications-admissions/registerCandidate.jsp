@@ -60,7 +60,7 @@
 			<div class="form-group">
 				<div class="col-sm-push-2 col-sm-10">
 				<%
-		          ReCaptcha c = ReCaptchaFactory.newReCaptcha(ApplicationsAdmissionsConfiguration.getConfiguration().recaptchaSiteKey(), ApplicationsAdmissionsConfiguration.getConfiguration().recaptchaSecretKey(), true);
+		          ReCaptcha c = ReCaptchaFactory.newSecureReCaptcha(ApplicationsAdmissionsConfiguration.getConfiguration().recaptchaSiteKey(), ApplicationsAdmissionsConfiguration.getConfiguration().recaptchaSecretKey(), true);
 		          out.print(c.createRecaptchaHtml(null, null));
 		        %>
 		        </div>
