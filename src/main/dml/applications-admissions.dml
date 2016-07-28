@@ -11,6 +11,7 @@ class Contest {
 class Candidate {
     int candidateNumber;
     String name;
+    String email;
 	String editHash;
 	String directory;
 	String directoryForCandidateDocuments;

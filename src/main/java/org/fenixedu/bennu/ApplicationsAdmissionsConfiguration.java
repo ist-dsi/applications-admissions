@@ -30,6 +30,16 @@ public class ApplicationsAdmissionsConfiguration {
     public interface ConfigurationProperties {
         @ConfigurationProperty(key = "drive.contest.dir")
         public String contestDir();
+        
+        @ConfigurationProperty(key = "drive.client.app.user")
+        public String contestAppUser();
+        
+        @ConfigurationProperty(key = "recaptcha.site.key")
+        public String recaptchaSiteKey();
+        
+        @ConfigurationProperty(key = "recaptcha.secret.key")
+        public String recaptchaSecretKey();
+        
     }
 
     public static ConfigurationProperties getConfiguration() {
