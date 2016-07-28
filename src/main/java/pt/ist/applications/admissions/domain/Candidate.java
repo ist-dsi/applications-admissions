@@ -7,10 +7,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
+import org.fenixedu.bennu.ApplicationsAdmissionsConfiguration;
+import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.domain.User;
+import org.fenixedu.bennu.core.groups.Group;
+import org.fenixedu.bennu.core.groups.UserGroup;
+import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.messaging.domain.Message.MessageBuilder;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.springframework.context.MessageSource;
 
+import com.google.common.base.Strings;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -21,19 +33,20 @@ import pt.ist.fenixframework.Atomic;
 
 public class Candidate extends Candidate_Base {
 
-    Candidate(final Contest contest, final String name) {
+    Candidate(final Contest contest, final String name, String email, String contestPath, MessageSource messageSource) {
         super();
         setCandidateNumber(contest.getCandidateSet().size() + 1);
         setName(name);
+        setEmail(email);
         setContest(contest);
-        generateHash();
+        generateHash(contestPath, messageSource);
         final String directory =
                 ClientFactory.configurationDriveClient().createDirectory(contest.getDirectory(), getDirectoryName());
         setDirectory(directory);
-        setDirectoryForCandidateDocuments(ClientFactory.configurationDriveClient().createDirectory(directory,
-                "CandidateDocuments"));
-        setDirectoryForLettersOfRecomendation(ClientFactory.configurationDriveClient().createDirectory(directory,
-                "LettersOfRecommendation"));
+        setDirectoryForCandidateDocuments(
+                ClientFactory.configurationDriveClient().createDirectory(directory, "CandidateDocuments"));
+        setDirectoryForLettersOfRecomendation(
+                ClientFactory.configurationDriveClient().createDirectory(directory, "LettersOfRecommendation"));
     }
 
     private String getDirectoryName() {
@@ -62,8 +75,9 @@ public class Candidate extends Candidate_Base {
     }
 
     @Atomic
-    public void generateHash() {
+    public void generateHash(String contestPath, MessageSource messageSource) {
         setEditHash(UUID.randomUUID().toString());
+        sendRegistrationEmail(contestPath, messageSource);
     }
 
     @Atomic
@@ -81,10 +95,11 @@ public class Candidate extends Candidate_Base {
     }
 
     @Atomic
-    public void submitApplication() {
+    public void submitApplication(MessageSource messageSource) {
         final DateTime now = new DateTime();
         setSealDate(now);
         setSeal(calculateDigest());
+        sendApplicationSubmitionEmail(messageSource);
     }
 
     public String calculateDigest() {
@@ -139,6 +154,56 @@ public class Candidate extends Candidate_Base {
             }
         });
         return result;
+    }
+
+    public void sendRegistrationEmail(String contestPath, MessageSource messageSource) {
+        if (!Strings.isNullOrEmpty(getEmail())) {
+            String subject =
+                    message(messageSource, "message.applications.admissions.candidacy.subject", getContest().getContestName());
+            StringBuilder url = new StringBuilder();
+            url.append(contestPath).append("/admissions/candidate/").append(getExternalId()).append("?hash=")
+                    .append(getEditHash());
+            DateTimeFormatter datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm (ZZZ)");
+            String messageBody = message(messageSource, "message.applications.admissions.candidacy.messageBody", url.toString(),
+                    datePattern.print(getContest().getEndDate()));
+            sendMessage(subject, messageBody);
+        }
+    }
+
+    private void sendApplicationSubmitionEmail(MessageSource messageSource) {
+        if (!Strings.isNullOrEmpty(getEmail())) {
+            String subject =
+                    message(messageSource, "message.applications.admissions.submition.subject", getContest().getContestName());
+            StringBuilder files = new StringBuilder();
+            final JsonArray ja = ClientFactory.configurationDriveClient().listDirectory(getDirectoryForCandidateDocuments());
+            for (final JsonObject jo : sortBy(ja, "name", "created", "modified", "size")) {
+                files.append("\n").append(jo.get("name").getAsString()).append(" | ");
+                files.append(jo.get("size").getAsString()).append(" | ");
+                files.append(new DateTime(jo.get("created").getAsLong()).toString("yyyy-MM-dd HH:mm")).append(" | ");
+                files.append(new DateTime(jo.get("modified").getAsLong()).toString("yyyy-MM-dd HH:mm"));
+            }
+            String messageBody =
+                    message(messageSource, "message.applications.admissions.submition.messageBody", files.toString());
+            sendMessage(subject, messageBody);
+        }
+    }
+
+    private String message(MessageSource messageSource, String key, Object... args) {
+        return messageSource.getMessage(key, args, Locale.getDefault());
+    }
+
+    private void sendMessage(String subject, String messageBody) {
+        MessageBuilder message = Bennu.getInstance().getMessagingSystem().getSystemSender().message(subject, messageBody);
+        User clientAppUser = User.findByUsername(ApplicationsAdmissionsConfiguration.getConfiguration().contestAppUser());
+        try {
+            Authenticate.mock(clientAppUser);
+            Group ug = UserGroup.of(clientAppUser);
+            message.to(ug);
+            message.bcc(getEmail());
+            message.send();
+        } finally {
+            Authenticate.unmock();
+        }
     }
 
 }

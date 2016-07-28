@@ -170,7 +170,7 @@
 	</tbody>
 </table>
 
-<% if (Contest.canManageContests()) { %>
+<% if (Contest.canManageContests() || contest.isInPeriod()) { %>
 	<div>
 		<button class="btn btn-default" onclick="goToRegisterCandidate()">
 			<spring:message code="label.applications.admissions.contest.candidate.register"/>
