@@ -156,7 +156,7 @@
 	<% } %>
 </div>
 
-<h3 id="NoResults" style="display: none;"><spring:message code="label.search.empty" text="No available results." /></h3>
+<h3 id="NoResults" style="display: none;"><spring:message code="label.applications.none" text="No available results." /></h3>
 
 <table id="candidateTable" class="table tdmiddle" style="display: none;">
 	<thead>
