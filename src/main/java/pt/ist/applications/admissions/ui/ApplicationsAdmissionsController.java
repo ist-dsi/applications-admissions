@@ -23,6 +23,12 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.tika.mime.MimeType;
@@ -33,6 +39,7 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringApplication;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -49,10 +56,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.google.common.base.Strings;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
-import antlr.StringUtils;
-import net.tanesha.recaptcha.ReCaptchaImpl;
-import net.tanesha.recaptcha.ReCaptchaResponse;
 import pt.ist.applications.admissions.domain.Candidate;
 import pt.ist.applications.admissions.domain.Contest;
 import pt.ist.applications.admissions.util.Utils;
@@ -63,6 +68,12 @@ import pt.ist.drive.sdk.ClientFactory;
 @SpringFunctionality(app = ApplicationsAdmissionsController.class, title = "title.applications.admissions")
 @RequestMapping("/admissions")
 public class ApplicationsAdmissionsController {
+
+    protected static final Client CLIENT = ClientBuilder.newClient();
+
+    static {
+        CLIENT.register(MultiPartFeature.class);
+    }
 
     @Autowired
     private MessageSource messageSource;
@@ -129,12 +140,17 @@ public class ApplicationsAdmissionsController {
         final Map<String, String> map = Utils.toMap(stuff, "name", "value");
         model.addAttribute("contest", toJsonObject(contest));
         if (Authenticate.getUser() == null) {
-            ReCaptchaImpl reCaptcha = new ReCaptchaImpl();
-            reCaptcha.setPrivateKey(ApplicationsAdmissionsConfiguration.getConfiguration().recaptchaSecretKey());
-            ReCaptchaResponse reCaptchaResponse = reCaptcha.checkAnswer(request.getRemoteAddr(),
-                    map.get("recaptcha_challenge_field"), map.get("recaptcha_response_field"));
-            if (!reCaptchaResponse.isValid()) {
-                throw new Error(reCaptchaResponse.getErrorMessage());
+            Form form = new Form();
+            form.param("secret", ApplicationsAdmissionsConfiguration.getConfiguration().recaptchaSecretKey());
+            form.param("response", map.get("g-recaptcha-response"));
+
+            WebTarget target = CLIENT.target("https://www.google.com/recaptcha/api/siteverify");
+            String post = target.request(MediaType.APPLICATION_JSON_TYPE).post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE),
+                    String.class);
+
+            JsonObject jo = new JsonParser().parse(post).getAsJsonObject();
+            if(!jo.get("success").getAsBoolean()) {
+                throw new Error(jo.get("error-codes").getAsString());
             }
         }
         Candidate candidate = null;

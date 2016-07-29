@@ -26,7 +26,6 @@
         <version.pt.ist.drive-sdk>1.1.0</version.pt.ist.drive-sdk>
         <version.org.apache.tika.tika-core>1.12</version.org.apache.tika.tika-core>
         <version.org.fenixedu.messaging>2.0.1</version.org.fenixedu.messaging>
-        <version.net.tanesha.recaptcha4j>0.0.7</version.net.tanesha.recaptcha4j>
     </properties>
 
     <dependencies>
@@ -84,11 +83,6 @@
             <artifactId>messaging</artifactId>
             <version>${version.org.fenixedu.messaging}</version>
         </dependency>
-        <dependency>
-		    <groupId>net.tanesha.recaptcha4j</groupId>
-		    <artifactId>recaptcha4j</artifactId>
-		    <version>${version.net.tanesha.recaptcha4j}</version>
-		</dependency>
     </dependencies>
 
     <repositories>
