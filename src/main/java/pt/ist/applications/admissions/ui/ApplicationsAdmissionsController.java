@@ -19,6 +19,7 @@
 package pt.ist.applications.admissions.ui;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.Map;
 
@@ -82,8 +83,9 @@ public class ApplicationsAdmissionsController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String home(final Model model) {
-        final JsonArray contests =
-                Bennu.getInstance().getContestSet().stream().map(this::toJsonObject).collect(Utils.toJsonArray());
+        final JsonArray contests = Bennu.getInstance().getContestSet().stream()
+                .sorted(Comparator.comparing((Contest c) -> c.getBeginDate()).reversed()).map(this::toJsonObject)
+                .collect(Utils.toJsonArray());
         model.addAttribute("contests", contests);
         return "applications-admissions/home";
     }
@@ -120,14 +122,17 @@ public class ApplicationsAdmissionsController {
     }
 
     @RequestMapping(value = "/contest/{contest}", method = RequestMethod.GET)
-    public String contest(@PathVariable Contest contest, @RequestParam(required = false) String hash, final Model model, final HttpServletRequest request) {
+    public String contest(@PathVariable Contest contest, @RequestParam(required = false) String hash, final Model model,
+            final HttpServletRequest request) {
         if (Authenticate.getUser() == null) {
             I18N.setLocale(request.getSession(false), new Locale("en", "GB"));
         }
 
         final JsonObject result = toJsonObject(contest);
         if (Contest.canManageContests() || contest.verifyHashForView(hash)) {
-            final JsonArray candidates = contest.getCandidateSet().stream().map(this::toJsonObject).collect(Utils.toJsonArray());
+            final JsonArray candidates =
+                    contest.getCandidateSet().stream().sorted(Comparator.comparing((Candidate c) -> c.getCandidateNumber()))
+                            .map(this::toJsonObject).collect(Utils.toJsonArray());
             result.add("candidates", candidates);
         }
         model.addAttribute("contest", result);
@@ -151,11 +156,11 @@ public class ApplicationsAdmissionsController {
             form.param("response", map.get("g-recaptcha-response"));
 
             WebTarget target = CLIENT.target("https://www.google.com/recaptcha/api/siteverify");
-            String post = target.request(MediaType.APPLICATION_JSON_TYPE).post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE),
-                    String.class);
+            String post = target.request(MediaType.APPLICATION_JSON_TYPE)
+                    .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE), String.class);
 
             JsonObject jo = new JsonParser().parse(post).getAsJsonObject();
-            if(!jo.get("success").getAsBoolean()) {
+            if (!jo.get("success").getAsBoolean()) {
                 throw new Error(jo.get("error-codes").getAsString());
             }
         }
@@ -218,7 +223,8 @@ public class ApplicationsAdmissionsController {
     }
 
     @RequestMapping(value = "/candidate/{candidate}", method = RequestMethod.GET)
-    public String candidate(@PathVariable Candidate candidate, @RequestParam(required = false) String hash, final Model model, final HttpServletRequest request) {
+    public String candidate(@PathVariable Candidate candidate, @RequestParam(required = false) String hash, final Model model,
+            final HttpServletRequest request) {
         if (Authenticate.getUser() == null) {
             I18N.setLocale(request.getSession(false), new Locale("en", "GB"));
         }
@@ -351,6 +357,7 @@ public class ApplicationsAdmissionsController {
         object.addProperty("id", c.getExternalId());
         object.addProperty("candidateNumber", c.getCandidateNumber());
         object.addProperty("name", c.getName());
+        object.addProperty("email", c.getEmail());
         final DateTime sealDate = c.getSealDate();
         if (sealDate != null) {
             object.addProperty("sealDate", sealDate.toString(Utils.DATE_TIME_PATTERN));

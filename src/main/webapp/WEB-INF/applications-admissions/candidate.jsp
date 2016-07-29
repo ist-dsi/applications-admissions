@@ -64,6 +64,7 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
 		<spring:message code="label.applications.admissions.candidate"/>
 		<span id="candidateName"></span>
 	</h1>
+	<h4><spring:message code="label.applications.admissions.candidate.email"/>: <span id="candidateEmail"></span></h4>
 	<h4>
 		<spring:message code="label.applications.admissions.contest"/>
 		<a href="<%= contextPath + "/admissions/contest/" + candidate.getContest().getExternalId() + hashArg %>" class="secondaryLink">
@@ -277,6 +278,7 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
 	$(document).ready(function() {
 		$('#candidateName').html(candidate.name);
 		$('#candidateNumber').html(candidate.candidateNumber);
+		$('#candidateEmail').html(candidate.email);
 		$('#contestName').html(contest.contestName);
 		$('#beginDate').html(contest.beginDate);
 		$('#endDate').html(contest.endDate);
