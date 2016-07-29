@@ -19,6 +19,7 @@
 package pt.ist.applications.admissions.ui;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,6 +40,7 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringApplication;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.commons.i18n.I18N;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -118,7 +120,11 @@ public class ApplicationsAdmissionsController {
     }
 
     @RequestMapping(value = "/contest/{contest}", method = RequestMethod.GET)
-    public String contest(@PathVariable Contest contest, @RequestParam(required = false) String hash, final Model model) {
+    public String contest(@PathVariable Contest contest, @RequestParam(required = false) String hash, final Model model, final HttpServletRequest request) {
+        if (Authenticate.getUser() == null) {
+            I18N.setLocale(request.getSession(false), new Locale("en", "GB"));
+        }
+
         final JsonObject result = toJsonObject(contest);
         if (Contest.canManageContests() || contest.verifyHashForView(hash)) {
             final JsonArray candidates = contest.getCandidateSet().stream().map(this::toJsonObject).collect(Utils.toJsonArray());
@@ -212,7 +218,10 @@ public class ApplicationsAdmissionsController {
     }
 
     @RequestMapping(value = "/candidate/{candidate}", method = RequestMethod.GET)
-    public String candidate(@PathVariable Candidate candidate, @RequestParam(required = false) String hash, final Model model) {
+    public String candidate(@PathVariable Candidate candidate, @RequestParam(required = false) String hash, final Model model, final HttpServletRequest request) {
+        if (Authenticate.getUser() == null) {
+            I18N.setLocale(request.getSession(false), new Locale("en", "GB"));
+        }
         if (Contest.canManageContests() || candidate.verifyHash(hash)) {
             model.addAttribute("candidate", toJsonObjectWithContest(candidate, hash));
             return "applications-admissions/candidate";
