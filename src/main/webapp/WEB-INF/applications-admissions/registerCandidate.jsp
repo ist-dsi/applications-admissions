@@ -18,12 +18,12 @@
 
 --%>
 <%@ page import="pt.ist.applications.admissions.domain.Contest"%>
-<%@ page import="net.tanesha.recaptcha.ReCaptcha" %>
-<%@ page import="net.tanesha.recaptcha.ReCaptchaFactory" %>
 <%@ page import="org.fenixedu.bennu.ApplicationsAdmissionsConfiguration" %>
 <%@ page import="org.fenixedu.bennu.core.security.Authenticate"%>
 
 <jsp:directive.include file="headers.jsp" />
+
+<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit" async defer></script>
 
 <div class="page-header">
 	<h1>
@@ -32,17 +32,20 @@
 	</h1>
 </div>
 
- <script type="text/javascript">
- var RecaptchaOptions = {
-    theme : 'white'
- };
- </script>
- 
+
+<script type="text/javascript">
+  var onloadCallback = function() {
+    grecaptcha.render('html_element', {
+      'sitekey' : '<%=ApplicationsAdmissionsConfiguration.getConfiguration().recaptchaSiteKey()%>'
+    });
+  };
+</script>
+    
 <div class="page-body">
 	<form id="registerForm" class="form-horizontal" action="#" method="POST">
 		<div class="form-group">
 			<label class="control-label col-sm-2" for="contestName">
-				<spring:message code="label.applications.admissions.candidate" text="Candidate" />
+				<spring:message code="label.applications.admissions.candidate.name" text="Candidate" />
 			</label>
 			<div class="col-sm-10">
 				<input name="name" type="text" class="form-control" id="name" required="required" value=""/>
@@ -59,10 +62,7 @@
 		<% if (Authenticate.getUser() == null) {  %>
 			<div class="form-group">
 				<div class="col-sm-push-2 col-sm-10">
-				<%
-		          ReCaptcha c = ReCaptchaFactory.newSecureReCaptcha(ApplicationsAdmissionsConfiguration.getConfiguration().recaptchaSiteKey(), ApplicationsAdmissionsConfiguration.getConfiguration().recaptchaSecretKey(), true);
-		          out.print(c.createRecaptchaHtml(null, null));
-		        %>
+				 <div id="html_element"></div>
 		        </div>
 			</div>
 		<% } %>
@@ -76,6 +76,8 @@
     </form>
 </div>
 
+
+    
 <script type="text/javascript">
 	var contextPath = '<%=contextPath%>';
 	var contest = ${contest};
@@ -97,7 +99,6 @@
 					window.open(action, "_self");
 				},
 				error: function (jqXHR, textStatus, errorThrown) {
-					document.getElementById('recaptcha_reload_btn').click();
 					alert('An error has occured!! :-(' + errorThrown)
 				}
 			})
