@@ -14,9 +14,11 @@ import org.fenixedu.bennu.ApplicationsAdmissionsConfiguration;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.groups.Group;
-import org.fenixedu.bennu.core.groups.UserGroup;
 import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.messaging.domain.Message.MessageBuilder;
+import org.fenixedu.messaging.core.domain.Message;
+import org.fenixedu.messaging.core.domain.Message.MessageBuilder;
+import org.fenixedu.messaging.core.domain.MessagingSystem;
+import org.fenixedu.messaging.core.domain.Sender;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -193,13 +195,13 @@ public class Candidate extends Candidate_Base {
     }
 
     private void sendMessage(String subject, String messageBody) {
-        MessageBuilder message = Bennu.getInstance().getMessagingSystem().getSystemSender().message(subject, messageBody);
+        final MessageBuilder message = Message.fromSystem().subject(subject).textBody(messageBody);
         User clientAppUser = User.findByUsername(ApplicationsAdmissionsConfiguration.getConfiguration().contestAppUser());
         try {
             Authenticate.mock(clientAppUser);
-            Group ug = UserGroup.of(clientAppUser);
+            Group ug = Group.users(clientAppUser);
             message.to(ug);
-            message.bcc(getEmail());
+            message.singleBcc((getEmail()));
             message.send();
         } finally {
             Authenticate.unmock();
