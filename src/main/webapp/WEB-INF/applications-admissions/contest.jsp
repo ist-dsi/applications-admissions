@@ -175,6 +175,11 @@
 		<button class="btn btn-default" onclick="goToRegisterCandidate()">
 			<spring:message code="label.applications.admissions.contest.candidate.register"/>
 		</button>
+		<% if (Contest.canManageContests()) {%>
+			<button class="btn btn-default" onclick="goToExportContestCandidates()">
+				<spring:message code="label.applications.admissions.contest.export.applications"/>
+			</button>
+ 	  	<% } %>      
 	</div>
 <% } %>
 
@@ -202,6 +207,10 @@
 	});
 	function goToRegisterCandidate() {
 		window.open(contextPath + '/admissions/contest/' + contest.id + '/registerCandidate', '_self');
+	}
+	
+	function goToExportContestCandidates() {
+		window.open(contextPath + '/admissions/contest/' + contest.id + '/exportContestCandidates', '_self');
 	}
 </script>
 <% if (Contest.canManageContests()) { %>
