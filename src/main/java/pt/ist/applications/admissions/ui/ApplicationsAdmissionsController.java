@@ -39,9 +39,13 @@ import org.apache.tika.mime.MimeTypes;
 import org.fenixedu.bennu.ApplicationsAdmissionsConfiguration;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.bennu.portal.servlet.PortalBackend;
 import org.fenixedu.bennu.spring.portal.SpringApplication;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.commons.i18n.I18N;
+import org.fenixedu.commons.spreadsheet.SheetData;
+import org.fenixedu.commons.spreadsheet.SpreadsheetBuilder;
+import org.fenixedu.commons.spreadsheet.WorkbookExportFormat;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -395,4 +399,32 @@ public class ApplicationsAdmissionsController {
         return object;
     }
 
+    @RequestMapping(value = "/contest/{contest}/exportContestCandidates", method = RequestMethod.GET)
+    public String exportContestCandidates(@PathVariable Contest contest, final Model model, HttpServletResponse response) throws IOException {
+        SpreadsheetBuilder builder = new SpreadsheetBuilder();
+        String fileName = messageSource.getMessage("title.applications.admissions", null, I18N.getLocale());
+        response.setContentType("application/vnd.ms-excel");
+        response.setHeader("Content-Disposition", "filename=" + fileName+".xls");
+        
+        builder.addSheet(fileName,
+                new SheetData<Candidate>(contest.getCandidateSet()) {
+                    @Override
+                    protected void makeLine(Candidate candidate) {
+                        addCell(messageSource.getMessage("label.applications.admissions.candidate.number", null, I18N.getLocale()), candidate.getCandidateNumber());
+                        addCell(messageSource.getMessage("label.applications.admissions.candidate", null, I18N.getLocale()), candidate.getName());
+                        addCell(messageSource.getMessage("label.applications.admissions.candidate.email", null, I18N.getLocale()), candidate.getEmail());
+                        addCell(messageSource.getMessage("label.application.seal.date", null, I18N.getLocale()), candidate.getSealDate());
+                        
+                        final JsonArray candidateDocuments = ClientFactory.configurationDriveClient().listDirectory(candidate.getDirectoryForCandidateDocuments());
+                        addCell(messageSource.getMessage("label.applications.admissions.candidate.documents", null, I18N.getLocale()), candidateDocuments.size());
+                        final JsonArray lettersOfRecomendation = ClientFactory.configurationDriveClient().listDirectory(candidate.getDirectoryForLettersOfRecomendation());
+                        addCell(messageSource.getMessage("label.applications.admissions.candidate.lettersOfRecommendation", null, I18N.getLocale()), lettersOfRecomendation.size());
+                    }
+                });
+        
+        
+        builder.build(WorkbookExportFormat.TSV, response.getOutputStream());
+        response.flushBuffer();
+        return null;
+    }
 }
