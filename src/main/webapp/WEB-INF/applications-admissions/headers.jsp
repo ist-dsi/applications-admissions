@@ -22,7 +22,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <% final String contextPath = request.getContextPath(); %>
 <script src='<%= contextPath + "/bennu-portal/js/angular.min.js" %>'></script>
-<script src='<%= contextPath + "/bennu-scheduler-ui/js/libs/moment/moment.min.js" %>'></script>
+<script src='<%= contextPath + "/bennu-toolkit/js/libs/moment.js" %>'></script>
 <script src='<%= contextPath + "/webjars/highcharts/4.0.4/highcharts.js" %>'></script>
 <script src='<%= contextPath + "/webjars/highcharts/4.0.4/highcharts-more.js" %>'></script>
 <script src='<%= contextPath + "/webjars/jquery-ui/1.11.1/jquery-ui.js" %>'></script>
