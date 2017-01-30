@@ -145,39 +145,44 @@ public class ApplicationsAdmissionsController {
 
     @RequestMapping(value = "/contest/{contest}/registerCandidate", method = RequestMethod.GET)
     public String registerCandidate(@PathVariable Contest contest, final Model model) {
-        model.addAttribute("contest", toJsonObject(contest));
-        return "applications-admissions/registerCandidate";
+        if (Contest.canManageContests() || contest.isInPeriod()) {
+            model.addAttribute("contest", toJsonObject(contest));
+            return "applications-admissions/registerCandidate";
+        }
+        return "redirect:/admissions/contest/" + contest.getExternalId();
     }
 
     @RequestMapping(value = "/contest/{contest}/registerCandidate", method = RequestMethod.POST)
     public String registerCandidateSave(@PathVariable Contest contest, final Model model, @RequestBody final String stuff,
             HttpServletRequest request) {
-        final Map<String, String> map = Utils.toMap(stuff, "name", "value");
-        model.addAttribute("contest", toJsonObject(contest));
-        if (Authenticate.getUser() == null) {
-            Form form = new Form();
-            form.param("secret", ApplicationsAdmissionsConfiguration.getConfiguration().recaptchaSecretKey());
-            form.param("response", map.get("g-recaptcha-response"));
-
-            WebTarget target = CLIENT.target("https://www.google.com/recaptcha/api/siteverify");
-            String post = target.request(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE), String.class);
-
-            JsonObject jo = new JsonParser().parse(post).getAsJsonObject();
-            if (!jo.get("success").getAsBoolean()) {
-                throw new Error(jo.get("error-codes").getAsString());
+        if (Contest.canManageContests() || contest.isInPeriod()) {
+            final Map<String, String> map = Utils.toMap(stuff, "name", "value");
+            model.addAttribute("contest", toJsonObject(contest));
+            if (Authenticate.getUser() == null) {
+                Form form = new Form();
+                form.param("secret", ApplicationsAdmissionsConfiguration.getConfiguration().recaptchaSecretKey());
+                form.param("response", map.get("g-recaptcha-response"));
+    
+                WebTarget target = CLIENT.target("https://www.google.com/recaptcha/api/siteverify");
+                String post = target.request(MediaType.APPLICATION_JSON_TYPE)
+                        .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE), String.class);
+    
+                JsonObject jo = new JsonParser().parse(post).getAsJsonObject();
+                if (!jo.get("success").getAsBoolean()) {
+                    throw new Error(jo.get("error-codes").getAsString());
+                }
             }
+            Candidate candidate = null;
+            final String email = map.get("email");
+            if (EmailValidator.getInstance().isValid(email)) {
+                String path = request.getRequestURL().substring(0,
+                        request.getRequestURL().length() - request.getRequestURI().length() + request.getContextPath().length());
+                candidate = contest.registerCandidate(map.get("name"), email, path, messageSource);
+            }
+            return candidate == null ? "redirect:/admissions/contest/" + contest.getExternalId() : "redirect:/admissions/candidate/"
+                    + candidate.getExternalId();
         }
-        Candidate candidate = null;
-        final String email = map.get("email");
-        if (EmailValidator.getInstance().isValid(email)) {
-            String path = request.getRequestURL().substring(0,
-                    request.getRequestURL().length() - request.getRequestURI().length() + request.getContextPath().length());
-            candidate = contest.registerCandidate(map.get("name"), email, path, messageSource);
-        }
-        return candidate == null ? "redirect:/admissions/contest/" + contest.getExternalId() : "redirect:/admissions/candidate/"
-                + candidate.getExternalId();
-
+        throw new Error("error.contest.not.in.open.period");
     }
 
     @RequestMapping(value = "/candidateRegistrationConfirmation/{contest}", method = RequestMethod.GET)
