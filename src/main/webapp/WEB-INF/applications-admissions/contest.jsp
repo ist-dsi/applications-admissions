@@ -23,9 +23,9 @@
 <%@page import="com.google.gson.JsonObject"%>
 <%@page import="pt.ist.applications.admissions.domain.Contest"%>
 <jsp:directive.include file="headers.jsp" />
-<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/xdan/datetimepicker/master/jquery.datetimepicker.css"/ >
+<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/xdan/datetimepicker/master/jquery.datetimepicker.css"/>
 <script type="text/javascript" src="https://cdn.rawgit.com/xdan/datetimepicker/master/jquery.js"></script>
-<script type="text/javascript" src="https://cdn.rawgit.com/xdan/datetimepicker/master/jquery.datetimepicker.js"></script>
+<script type="text/javascript" src="https://cdn.rawgit.com/xdan/datetimepicker/master/build/jquery.datetimepicker.full.js"></script>
 
 <div class="page-header">
 	<h1>
