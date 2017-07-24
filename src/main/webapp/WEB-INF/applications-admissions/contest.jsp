@@ -1,5 +1,5 @@
 <%--
-    Copyright © 2014 Instituto Superior T�cnico
+    Copyright © 2014 Instituto Superior T�cnico
 
     This file is part of Applications and Admissions Module.
 
@@ -100,7 +100,7 @@
 				<br/>
 				<form method="POST" action="<%= contextPath + "/admissions/contest/" + contest.getExternalId() + "/delete" %>"
 						style="margin-left: 50px;">
-					<input id="checkContestName" type="text" name="contestName" size="50" onchange="checkActivateButton();"/>
+					<input id="checkContestName" type="text" name="contestName" size="50" oninput="checkActivateButton();"/>
 					<button id="deleteButton" class="btn btn-default warning-border" onclick="return deleteContest();" disabled="disabled" style="background-color: #DE2C2C; color: white;">
 						<spring:message code="label.link.delete.contest" text="Delete Contest"/>
 					</button>
