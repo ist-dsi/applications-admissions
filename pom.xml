@@ -22,7 +22,7 @@
         <version.org.fenixedu.bennu.renderers>5.1.1</version.org.fenixedu.bennu.renderers>
         <version.javax.servlet.jstl>1.2</version.javax.servlet.jstl>
         <version.org.webjars.jquery-ui>1.11.1</version.org.webjars.jquery-ui>
-        <version.pt.ist.drive-sdk>1.1.0</version.pt.ist.drive-sdk>
+        <version.pt.ist.drive-sdk>2.0.0</version.pt.ist.drive-sdk>
         <version.org.apache.tika.tika-core>1.12</version.org.apache.tika.tika-core>
         <version.org.fenixedu.messaging>3.0.0</version.org.fenixedu.messaging>
     </properties>
