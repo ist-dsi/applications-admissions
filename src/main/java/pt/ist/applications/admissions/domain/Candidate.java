@@ -198,7 +198,7 @@ public class Candidate extends Candidate_Base {
         final MessageBuilder message = Message.fromSystem().subject(subject).textBody(messageBody);
         User clientAppUser = User.findByUsername(ApplicationsAdmissionsConfiguration.getConfiguration().contestAppUser());
         try {
-            Authenticate.mock(clientAppUser);
+            Authenticate.mock(clientAppUser, "System Automation");
             Group ug = Group.users(clientAppUser);
             message.to(ug);
             message.singleBcc((getEmail()));
