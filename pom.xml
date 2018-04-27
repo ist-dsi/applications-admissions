@@ -24,7 +24,7 @@
         <version.org.webjars.jquery-ui>1.11.1</version.org.webjars.jquery-ui>
         <version.pt.ist.drive-sdk>2.0.0</version.pt.ist.drive-sdk>
         <version.org.apache.tika.tika-core>1.12</version.org.apache.tika.tika-core>
-        <version.org.fenixedu.messaging>3.1.0</version.org.fenixedu.messaging>
+        <version.org.fenixedu.messaging>3.5.0</version.org.fenixedu.messaging>
     </properties>
 
     <dependencies>
