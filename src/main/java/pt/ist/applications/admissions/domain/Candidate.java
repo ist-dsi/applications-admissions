@@ -7,18 +7,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 import org.fenixedu.bennu.ApplicationsAdmissionsConfiguration;
-import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.groups.Group;
-import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.messaging.core.domain.Message;
-import org.fenixedu.messaging.core.domain.Message.MessageBuilder;
-import org.fenixedu.messaging.core.domain.MessagingSystem;
-import org.fenixedu.messaging.core.domain.Sender;
+import org.fenixedu.messaging.core.template.DeclareMessageTemplate;
+import org.fenixedu.messaging.core.template.TemplateParameter;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -33,6 +29,22 @@ import pt.ist.applications.admissions.util.Utils;
 import pt.ist.drive.sdk.ClientFactory;
 import pt.ist.fenixframework.Atomic;
 
+@DeclareMessageTemplate(bundle = "resources.ApplicationsAdmissionsResources",
+    id = "message.applications.admissions.candidacy",
+    description = "message.applications.admissions.candidacy",
+    subject = "message.applications.admissions.candidacy.subject",
+    text = "message.applications.admissions.candidacy.messageBody",
+    parameters = {
+        @TemplateParameter(id = "contestName", description = "template.parameter.contestName"),
+        @TemplateParameter(id = "url", description = "template.parameter.url"),
+        @TemplateParameter(id = "endDate", description = "template.parameter.endDate") })
+@DeclareMessageTemplate(bundle = "resources.ApplicationsAdmissionsResources",
+    id = "message.applications.admissions.submition",
+    description = "message.applications.admissions.submition",
+    subject = "message.applications.admissions.submition.subject",
+    text = "message.applications.admissions.submition.messageBody",
+    parameters = {
+        @TemplateParameter(id = "files", description = "template.parameter.files") })
 public class Candidate extends Candidate_Base {
 
     Candidate(final Contest contest, final String name, String email, String contestPath, MessageSource messageSource) {
@@ -160,22 +172,27 @@ public class Candidate extends Candidate_Base {
 
     public void sendRegistrationEmail(String contestPath, MessageSource messageSource) {
         if (!Strings.isNullOrEmpty(getEmail())) {
-            String subject =
-                    message(messageSource, "message.applications.admissions.candidacy.subject", getContest().getContestName());
-            StringBuilder url = new StringBuilder();
-            url.append(contestPath).append("/admissions/candidate/").append(getExternalId()).append("?hash=")
-                    .append(getEditHash());
-            DateTimeFormatter datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm (ZZZ)");
-            String messageBody = message(messageSource, "message.applications.admissions.candidacy.messageBody", url.toString(),
-                    datePattern.print(getContest().getEndDate()));
-            sendMessage(subject, messageBody);
+            final StringBuilder url = new StringBuilder();
+            url.append(contestPath).append("/admissions/candidate/").append(getExternalId()).append("?hash=").append(getEditHash());
+            final DateTimeFormatter datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm (ZZZ)");
+
+            final User clientAppUser = User.findByUsername(ApplicationsAdmissionsConfiguration.getConfiguration().contestAppUser());
+
+            Message.fromSystem()
+                .to(Group.users(clientAppUser))
+                .singleBcc(getEmail())
+                .template("message.applications.admissions.candidacy")
+                .parameter("contestName", getContest().getContestName())
+                .parameter("url", url.toString())
+                .parameter("endDate", datePattern.print(getContest().getEndDate()))
+                .and().send();
         }
     }
 
     private void sendApplicationSubmitionEmail(MessageSource messageSource) {
         if (!Strings.isNullOrEmpty(getEmail())) {
-            String subject =
-                    message(messageSource, "message.applications.admissions.submition.subject", getContest().getContestName());
+
+            final User clientAppUser = User.findByUsername(ApplicationsAdmissionsConfiguration.getConfiguration().contestAppUser());
             StringBuilder files = new StringBuilder();
             final JsonArray ja = ClientFactory.configurationDriveClient().listDirectory(getDirectoryForCandidateDocuments());
             for (final JsonObject jo : sortBy(ja, "name", "created", "modified", "size")) {
@@ -184,27 +201,13 @@ public class Candidate extends Candidate_Base {
                 files.append(new DateTime(jo.get("created").getAsLong()).toString("yyyy-MM-dd HH:mm")).append(" | ");
                 files.append(new DateTime(jo.get("modified").getAsLong()).toString("yyyy-MM-dd HH:mm"));
             }
-            String messageBody =
-                    message(messageSource, "message.applications.admissions.submition.messageBody", files.toString());
-            sendMessage(subject, messageBody);
-        }
-    }
 
-    private String message(MessageSource messageSource, String key, Object... args) {
-        return messageSource.getMessage(key, args, Locale.getDefault());
-    }
-
-    private void sendMessage(String subject, String messageBody) {
-        final MessageBuilder message = Message.fromSystem().subject(subject).textBody(messageBody);
-        User clientAppUser = User.findByUsername(ApplicationsAdmissionsConfiguration.getConfiguration().contestAppUser());
-        try {
-            Authenticate.mock(clientAppUser, "System Automation");
-            Group ug = Group.users(clientAppUser);
-            message.to(ug);
-            message.singleBcc((getEmail()));
-            message.send();
-        } finally {
-            Authenticate.unmock();
+            Message.fromSystem()
+                .to(Group.users(clientAppUser))
+                .singleBcc(getEmail())
+                .template("message.applications.admissions.submition")
+                .parameter("files", files.toString())
+                .and().send();
         }
     }
 
