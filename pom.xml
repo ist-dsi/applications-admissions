@@ -22,7 +22,6 @@
         <version.javax.servlet.jstl>1.2</version.javax.servlet.jstl>
         <version.org.webjars.jquery-ui>1.11.1</version.org.webjars.jquery-ui>
         <version.pt.ist.drive-sdk>2.0.0</version.pt.ist.drive-sdk>
-        <version.org.apache.tika.tika-core>1.12</version.org.apache.tika.tika-core>
         <version.org.fenixedu.messaging>3.5.0</version.org.fenixedu.messaging>
     </properties>
 
@@ -66,11 +65,6 @@
             <groupId>pt.ist</groupId>
             <artifactId>drive-sdk</artifactId>
             <version>${version.pt.ist.drive-sdk}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-core</artifactId>
-            <version>${version.org.apache.tika.tika-core}</version>
         </dependency>
         <dependency>
             <groupId>org.fenixedu</groupId>
