@@ -44,6 +44,7 @@ import pt.ist.fenixframework.Atomic;
     subject = "message.applications.admissions.submition.subject",
     text = "message.applications.admissions.submition.messageBody",
     parameters = {
+        @TemplateParameter(id = "contestName", description = "template.parameter.contestName"),
         @TemplateParameter(id = "files", description = "template.parameter.files") })
 public class Candidate extends Candidate_Base {
 
@@ -206,6 +207,7 @@ public class Candidate extends Candidate_Base {
                 .to(Group.users(clientAppUser))
                 .singleBcc(getEmail())
                 .template("message.applications.admissions.submition")
+                .parameter("contestName", getContest().getContestName())
                 .parameter("files", files.toString())
                 .and().send();
         }
