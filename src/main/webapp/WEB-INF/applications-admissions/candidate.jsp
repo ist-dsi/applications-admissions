@@ -1,5 +1,5 @@
 <%--
-    Copyright © 2014 Instituto Superior T�cnico
+    Copyright © 2014 Instituto Superior T�cnico
 
     This file is part of Applications and Admissions Module.
 
@@ -89,6 +89,7 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
 			<td>
 				<div id="undispose">
 					<form method="POST" action="<%= contextPath + "/admissions/candidate/" + candidate.getExternalId() + "/undispose" %>">
+					${csrf.field()}
 						<button class="btn btn-default">
 							<spring:message code="label.undispose" text="Undispose"/>
 						</button>
@@ -97,6 +98,7 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
 			</td>
 			<td>
 				<form method="POST" action="<%= contextPath + "/admissions/candidate/" + candidate.getExternalId() + "/generateLink" %>">
+				${csrf.field()}
 					<button class="btn btn-default">
 						<spring:message code="label.link.generate.new" text="Generate New Link"/>
 					</button>
@@ -121,6 +123,7 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
 				<br/>
 				<form method="POST" action="<%= contextPath + "/admissions/candidate/" + candidate.getExternalId() + "/delete" %>"
 						style="margin-left: 50px;">
+						${csrf.field()}
 					<input id="checkCandidateName" type="text" name="candidateName" size="50" onchange="checkActivateButton();"/>
 					<button id="deleteButton" class="btn btn-default warning-border" onclick="return deleteCandidate();" disabled="disabled" style="background-color: #DE2C2C; color: white;">
 						<spring:message code="label.link.delete.candidate" text="Delete Candidate"/>
@@ -152,6 +155,7 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
 				<td colspan="6">
 					<form method="POST" enctype="multipart/form-data" class="form-horizontal" style="margin-left: 50px;"
 							action="<%= contextPath + "/admissions/candidate/" + candidate.getExternalId() + "/upload" %>">
+							${csrf.field()}
 						<input type="hidden" name="hash" value="<%= hash %>"/>
 						<div class="form-group">
 							<table>
@@ -195,6 +199,7 @@ final JsonArray items = candidateJson.get("items").getAsJsonArray();
                                 </h3>
                                 <p style="margin-left: 50px; margin-right: 50px; font-size: medium;">
                                     <form method="POST" action="<%= contextPath + "/admissions/candidate/" + candidate.getExternalId() + "/submitApplication" %>">
+                                        ${csrf.field()}
                                         <input type="hidden" name="hash" value="<%= hash %>"/>
                                         <spring:message var="confirmSubmitApplicationMessage" code="label.link.seal.confirm" text="Confirm Seal"/>
                                         <button id="firstSubmitButton" class="btn btn-default" onclick="toggleConfirmSubmit(); return false;"

@@ -1,5 +1,5 @@
 <%--
-    Copyright © 2014 Instituto Superior T�cnico
+    Copyright © 2014 Instituto Superior T�cnico
 
     This file is part of Applications and Admissions Module.
 
@@ -43,6 +43,7 @@
     
 <div class="page-body">
 	<form id="registerForm" class="form-horizontal" action="#" method="POST">
+	${csrf.field()}
 		<div class="form-group">
 			<label class="control-label col-sm-2" for="contestName">
 				<spring:message code="label.applications.admissions.candidate.name" text="Candidate" />
