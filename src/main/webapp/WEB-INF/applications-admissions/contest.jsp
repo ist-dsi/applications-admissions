@@ -71,6 +71,7 @@
 				<div id="undispose">
 					<form method="POST"
 						action="<%=contextPath + "/admissions/contest/" + contest.getExternalId() + "/undispose"%>">
+						${csrf.field()}
 						<button class="btn btn-default">
 							<spring:message code="label.undispose" text="Undispose" />
 						</button>
@@ -80,6 +81,7 @@
 			<td>
 				<form method="POST"
 					action="<%=contextPath + "/admissions/contest/" + contest.getExternalId() + "/generateLink"%>">
+					${csrf.field()}
 					<button class="btn btn-default">
 						<spring:message code="label.link.generate.new"
 							text="Generate New Link" />
@@ -100,6 +102,7 @@
 				<br/>
 				<form method="POST" action="<%= contextPath + "/admissions/contest/" + contest.getExternalId() + "/delete" %>"
 						style="margin-left: 50px;">
+						${csrf.field()}
 					<input id="checkContestName" type="text" name="contestName" size="50" oninput="checkActivateButton();"/>
 					<button id="deleteButton" class="btn btn-default warning-border" onclick="return deleteContest();" disabled="disabled" style="background-color: #DE2C2C; color: white;">
 						<spring:message code="label.link.delete.contest" text="Delete Contest"/>
@@ -116,6 +119,7 @@
 			<p style="margin-left: 50px; margin-right: 50px; font-size: medium;">
 				<form method="POST" action="<%= contextPath + "/admissions/contest/" + contest.getExternalId() + "/edit" %>"
 						style="margin-left: 50px;" class="form-horizontal" id="editForm">
+						${csrf.field()}
 					<div class="form-group">
 						<label class="control-label col-sm-2" for="contestName">
 							<spring:message code="label.applications.admissions.contest.name" text="label.applications.admissions.contest.name" />
