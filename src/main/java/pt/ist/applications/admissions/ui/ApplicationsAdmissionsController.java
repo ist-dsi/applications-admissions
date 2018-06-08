@@ -39,7 +39,7 @@ import org.apache.tika.mime.MimeTypes;
 import org.fenixedu.bennu.ApplicationsAdmissionsConfiguration;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.bennu.portal.servlet.PortalBackend;
+import org.fenixedu.bennu.core.security.SkipCSRF;
 import org.fenixedu.bennu.spring.portal.SpringApplication;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.commons.i18n.I18N;
@@ -60,15 +60,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.google.common.base.Strings;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 import pt.ist.applications.admissions.domain.Candidate;
 import pt.ist.applications.admissions.domain.Contest;
 import pt.ist.applications.admissions.util.Utils;
 import pt.ist.drive.sdk.ClientFactory;
+
+import com.google.common.base.Strings;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 @SpringApplication(group = "anyone", path = "applications", title = "title.applications.admissions",
         hint = "applications-admissions")
@@ -87,9 +87,10 @@ public class ApplicationsAdmissionsController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String home(final Model model) {
-        final JsonArray contests = Bennu.getInstance().getContestSet().stream()
-                .sorted(Comparator.comparing((Contest c) -> c.getBeginDate()).reversed()).map(this::toJsonObject)
-                .collect(Utils.toJsonArray());
+        final JsonArray contests =
+                Bennu.getInstance().getContestSet().stream()
+                        .sorted(Comparator.comparing((Contest c) -> c.getBeginDate()).reversed()).map(this::toJsonObject)
+                        .collect(Utils.toJsonArray());
         model.addAttribute("contests", contests);
         return "applications-admissions/home";
     }
@@ -111,6 +112,7 @@ public class ApplicationsAdmissionsController {
         return "applications-admissions/createContest";
     }
 
+    @SkipCSRF
     @RequestMapping(value = "/createContest/save", method = RequestMethod.POST)
     public String createContestSave(final Model model, @RequestBody final String stuff) {
         final DateTimeFormatter formatter = DateTimeFormat.forPattern(Utils.DATE_TIME_PATTERN);
@@ -152,6 +154,7 @@ public class ApplicationsAdmissionsController {
         return "redirect:/admissions/contest/" + contest.getExternalId();
     }
 
+    @SkipCSRF
     @RequestMapping(value = "/contest/{contest}/registerCandidate", method = RequestMethod.POST)
     public String registerCandidateSave(@PathVariable Contest contest, final Model model, @RequestBody final String stuff,
             HttpServletRequest request) {
@@ -162,11 +165,12 @@ public class ApplicationsAdmissionsController {
                 Form form = new Form();
                 form.param("secret", ApplicationsAdmissionsConfiguration.getConfiguration().recaptchaSecretKey());
                 form.param("response", map.get("g-recaptcha-response"));
-    
+
                 WebTarget target = CLIENT.target("https://www.google.com/recaptcha/api/siteverify");
-                String post = target.request(MediaType.APPLICATION_JSON_TYPE)
-                        .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE), String.class);
-    
+                String post =
+                        target.request(MediaType.APPLICATION_JSON_TYPE).post(
+                                Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE), String.class);
+
                 JsonObject jo = new JsonParser().parse(post).getAsJsonObject();
                 if (!jo.get("success").getAsBoolean()) {
                     throw new Error(jo.get("error-codes").getAsString());
@@ -175,8 +179,11 @@ public class ApplicationsAdmissionsController {
             Candidate candidate = null;
             final String email = map.get("email");
             if (EmailValidator.getInstance().isValid(email)) {
-                String path = request.getRequestURL().substring(0,
-                        request.getRequestURL().length() - request.getRequestURI().length() + request.getContextPath().length());
+                String path =
+                        request.getRequestURL().substring(
+                                0,
+                                request.getRequestURL().length() - request.getRequestURI().length()
+                                        + request.getContextPath().length());
                 candidate = contest.registerCandidate(map.get("name"), email, path, messageSource);
             }
             return candidate == null ? "redirect:/admissions/contest/" + contest.getExternalId() : "redirect:/admissions/candidate/"
@@ -208,6 +215,7 @@ public class ApplicationsAdmissionsController {
         return "redirect:/admissions/contest/" + contest.getExternalId();
     }
 
+    @SkipCSRF
     @RequestMapping(value = "/contest/{contest}/delete", method = RequestMethod.POST)
     public String contestDelete(@PathVariable Contest contest, final Model model) {
         if (Contest.canManageContests()) {
@@ -216,6 +224,7 @@ public class ApplicationsAdmissionsController {
         return "redirect:/admissions";
     }
 
+    @SkipCSRF
     @RequestMapping(value = "/contest/{contest}/edit", method = RequestMethod.POST)
     public String contestEdit(@PathVariable Contest contest, final Model model, @RequestBody final String stuff) {
         if (Contest.canManageContests()) {
@@ -295,8 +304,11 @@ public class ApplicationsAdmissionsController {
     @RequestMapping(value = "/candidate/{candidate}/generateLink", method = RequestMethod.POST)
     public String candidateGenerateLink(@PathVariable Candidate candidate, final Model model, HttpServletRequest request) {
         if (Contest.canManageContests()) {
-            String path = request.getRequestURL().substring(0,
-                    request.getRequestURL().length() - request.getRequestURI().length() + request.getContextPath().length());
+            String path =
+                    request.getRequestURL().substring(
+                            0,
+                            request.getRequestURL().length() - request.getRequestURI().length()
+                                    + request.getContextPath().length());
             candidate.generateHash(path, messageSource);
         }
         return "redirect:/admissions/candidate/" + candidate.getExternalId();
@@ -324,6 +336,7 @@ public class ApplicationsAdmissionsController {
         }
     }
 
+    @SkipCSRF
     @RequestMapping(value = "/candidate/{candidate}/delete", method = RequestMethod.POST)
     public String candidateDelete(@PathVariable Candidate candidate, final Model model) {
         final String id = candidate.getContest().getExternalId();
@@ -333,9 +346,10 @@ public class ApplicationsAdmissionsController {
         return "redirect:/admissions/contest/" + id;
     }
 
+    @SkipCSRF
     @RequestMapping(value = "/candidate/{candidate}/delete/{item}", method = RequestMethod.POST)
-    public String candidateDeleteItem(@PathVariable Candidate candidate, @PathVariable String item,
-            @RequestParam(required = false) String hash, final Model model) {
+    public String candidateDeleteItem(@PathVariable Candidate candidate, @PathVariable String item, @RequestParam(
+            required = false) String hash, final Model model) {
         final String id = candidate.getContest().getExternalId();
         if (candidate.verifyHashForEdit(hash)) {
             candidate.deleteItem(item);
@@ -397,37 +411,43 @@ public class ApplicationsAdmissionsController {
         final JsonObject object = toJsonObject(c);
         final Contest contest = c.getContest();
         object.add("contest", toJsonObject(contest));
-        object.add("logs",
-                ClientFactory.configurationDriveClient().logs(c.getDirectoryForCandidateDocuments(), Integer.MAX_VALUE));
+        object.add("logs", ClientFactory.configurationDriveClient()
+                .logs(c.getDirectoryForCandidateDocuments(), Integer.MAX_VALUE));
         object.add("recommendationLogs",
                 ClientFactory.configurationDriveClient().logs(c.getDirectoryForLettersOfRecomendation(), Integer.MAX_VALUE));
         return object;
     }
 
     @RequestMapping(value = "/contest/{contest}/exportContestCandidates", method = RequestMethod.GET)
-    public String exportContestCandidates(@PathVariable Contest contest, final Model model, HttpServletResponse response) throws IOException {
+    public String exportContestCandidates(@PathVariable Contest contest, final Model model, HttpServletResponse response)
+            throws IOException {
         SpreadsheetBuilder builder = new SpreadsheetBuilder();
         String fileName = messageSource.getMessage("title.applications.admissions", null, I18N.getLocale());
         response.setContentType("application/vnd.ms-excel");
-        response.setHeader("Content-Disposition", "filename=" + fileName+".xls");
-        
-        builder.addSheet(fileName,
-                new SheetData<Candidate>(contest.getCandidateSet()) {
-                    @Override
-                    protected void makeLine(Candidate candidate) {
-                        addCell(messageSource.getMessage("label.applications.admissions.candidate.number", null, I18N.getLocale()), candidate.getCandidateNumber());
-                        addCell(messageSource.getMessage("label.applications.admissions.candidate", null, I18N.getLocale()), candidate.getName());
-                        addCell(messageSource.getMessage("label.applications.admissions.candidate.email", null, I18N.getLocale()), candidate.getEmail());
-                        addCell(messageSource.getMessage("label.application.seal.date", null, I18N.getLocale()), candidate.getSealDate());
-                        
-                        final JsonArray candidateDocuments = ClientFactory.configurationDriveClient().listDirectory(candidate.getDirectoryForCandidateDocuments());
-                        addCell(messageSource.getMessage("label.applications.admissions.candidate.documents", null, I18N.getLocale()), candidateDocuments.size());
-                        final JsonArray lettersOfRecomendation = ClientFactory.configurationDriveClient().listDirectory(candidate.getDirectoryForLettersOfRecomendation());
-                        addCell(messageSource.getMessage("label.applications.admissions.candidate.lettersOfRecommendation", null, I18N.getLocale()), lettersOfRecomendation.size());
-                    }
-                });
-        
-        
+        response.setHeader("Content-Disposition", "filename=" + fileName + ".xls");
+
+        builder.addSheet(fileName, new SheetData<Candidate>(contest.getCandidateSet()) {
+            @Override
+            protected void makeLine(Candidate candidate) {
+                addCell(messageSource.getMessage("label.applications.admissions.candidate.number", null, I18N.getLocale()),
+                        candidate.getCandidateNumber());
+                addCell(messageSource.getMessage("label.applications.admissions.candidate", null, I18N.getLocale()),
+                        candidate.getName());
+                addCell(messageSource.getMessage("label.applications.admissions.candidate.email", null, I18N.getLocale()),
+                        candidate.getEmail());
+                addCell(messageSource.getMessage("label.application.seal.date", null, I18N.getLocale()), candidate.getSealDate());
+
+                final JsonArray candidateDocuments =
+                        ClientFactory.configurationDriveClient().listDirectory(candidate.getDirectoryForCandidateDocuments());
+                addCell(messageSource.getMessage("label.applications.admissions.candidate.documents", null, I18N.getLocale()),
+                        candidateDocuments.size());
+                final JsonArray lettersOfRecomendation =
+                        ClientFactory.configurationDriveClient().listDirectory(candidate.getDirectoryForLettersOfRecomendation());
+                addCell(messageSource.getMessage("label.applications.admissions.candidate.lettersOfRecommendation", null,
+                        I18N.getLocale()), lettersOfRecomendation.size());
+            }
+        });
+
         builder.build(WorkbookExportFormat.TSV, response.getOutputStream());
         response.flushBuffer();
         return null;
