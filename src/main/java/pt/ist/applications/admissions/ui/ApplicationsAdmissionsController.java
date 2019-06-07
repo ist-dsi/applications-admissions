@@ -60,15 +60,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.google.common.base.Strings;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import pt.ist.applications.admissions.domain.Candidate;
 import pt.ist.applications.admissions.domain.Contest;
 import pt.ist.applications.admissions.util.Utils;
 import pt.ist.drive.sdk.ClientFactory;
-
-import com.google.common.base.Strings;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 @SpringApplication(group = "anyone", path = "applications", title = "title.applications.admissions",
         hint = "applications-admissions")
@@ -329,11 +330,24 @@ public class ApplicationsAdmissionsController {
     public String download(@PathVariable Candidate candidate, @PathVariable String id,
             @RequestParam(required = false) String hash, final HttpServletResponse response) throws IOException {
         if (Contest.canManageContests() || candidate.verifyHash(hash)) {
-            ClientFactory.configurationDriveClient().downloadFile(id, response);
+            if (containsFileId(candidate, id)) {
+                ClientFactory.configurationDriveClient().downloadFile(id, response);
+            }
             return null;
         } else {
             return "redirect:/admissions/candidate/" + candidate.getExternalId() + "?hash=" + hash;
         }
+    }
+
+    private boolean containsFileId(final Candidate candidate, final String id) {
+        for (final JsonElement je : ClientFactory.configurationDriveClient().listDirectory(candidate.getDirectoryForCandidateDocuments())) {
+            final JsonObject jo = je.getAsJsonObject();
+            final String fileId = jo.get("id").getAsString();
+            if (fileId.equals(id)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @SkipCSRF
