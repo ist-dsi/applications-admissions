@@ -39,7 +39,10 @@ public class ApplicationsAdmissionsConfiguration {
         
         @ConfigurationProperty(key = "recaptcha.secret.key")
         public String recaptchaSecretKey();
-        
+
+        @ConfigurationProperty(key = "admissions.email.to")
+        public String emailTo();
+
     }
 
     public static ConfigurationProperties getConfiguration() {
