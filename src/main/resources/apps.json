@@ -1,0 +1,30 @@
+{
+  "apps":[
+      {
+          "title":{
+              "en-GB":"Applications Admissions Frontend",
+              "pt-PT":"Applications Admissions Frontend"
+          },
+          "description":{
+              "en-GB":"Applications Admissions Frontend",
+              "pt-PT":"Applications Admissions Frontend"
+          },
+          "accessExpression":"anyone",
+          "path":"applications-admissions",
+          "functionalities":[
+              {
+                  "title":{
+                      "en-GB":"Applications Admissions Frontend",
+                      "pt-PT":"Applications Admissions Frontend"
+                  },
+                  "description":{
+                      "en-GB":"Applications Admissions Frontend",
+                      "pt-PT":"Applications Admissions Frontend"
+                  },
+                  "path":"#",
+                  "accessExpression":"anyone"
+              }
+          ]
+      }
+  ]
+}

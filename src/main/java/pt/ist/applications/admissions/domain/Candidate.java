@@ -168,7 +168,8 @@ public class Candidate extends Candidate_Base {
     public void sendRegistrationEmail(String contestPath, MessageSource messageSource) {
         if (!Strings.isNullOrEmpty(getEmail())) {
             final StringBuilder url = new StringBuilder();
-            url.append(contestPath).append("/admissions/candidate/").append(getExternalId()).append("?hash=")
+            String candidacyBasePath = ApplicationsAdmissionsConfiguration.getConfiguration().candidacyBasePath();
+            url.append(contestPath).append(candidacyBasePath).append(getExternalId()).append("?hash=")
                     .append(getEditHash());
             final DateTimeFormatter datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm (ZZZ)");
 

@@ -40,6 +40,9 @@ public class ApplicationsAdmissionsConfiguration {
         @ConfigurationProperty(key = "recaptcha.secret.key")
         public String recaptchaSecretKey();
         
+        @ConfigurationProperty(key = "candidacy.basepath", defaultValue = "/applications-admissions/#/candidate/")
+        public String candidacyBasePath();
+
     }
 
     public static ConfigurationProperties getConfiguration() {

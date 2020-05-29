@@ -1,0 +1,155 @@
+{
+  "action": {
+    "view": "Ver",
+    "create": "Criar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "download": "Transferir",
+    "upload": "Upload",
+    "export": "Exportar",
+    "submit": "Submeter",
+    "cancel": "Cancelar",
+    "contest": {
+      "view": "Ver Concurso",
+      "create": "Criar Concurso",
+      "edit": "Editar Concurso",
+      "delete": "Eliminar Concurso",
+      "export": "Exportar Candidaturas do Concurso",
+      "hash": {
+        "create": "Gerar Nova Hash",
+        "delete": "Indisponibilizar"
+      }
+    },
+    "candidate": {
+      "view": "Ver Candidato",
+      "create": "Registar Candidato",
+      "edit": "Editar Candidato",
+      "delete": "Eliminar Candidato",
+      "download": "Transferir tudo",
+      "hash": {
+        "create": "Gerar Nova Hash",
+        "delete": "Indisponibilizar"
+      },
+      "file": {
+        "delete": "Eliminar Ficheiro",
+        "download": "Transferir Ficheiro",
+        "upload": "Fazer Upload de Ficheiro"
+      },
+      "seal": {
+        "create": "Submeter Candidatura"
+      },
+      "log": {
+        "view": "Consultar Histórico"
+      }
+    }
+  },
+  "label": {
+    "at": "às",
+    "contest": {
+      "main": "Concurso",
+      "name": "Nome do Concurso",
+      "begin": "Data de Início",
+      "end": "Data de Fim",
+      "link": "Link do Concurso"
+    },
+    "candidate": {
+      "main": "Candidato",
+      "number": "Candidatura",
+      "name": "Nome Completo",
+      "email": "Email",
+      "link": "Link do Candidato",
+      "file": {
+        "main": "Ficheiro",
+        "variant": {
+          "documents": "Documentos do Candidato",
+          "recommendations": "Cartas de Recomendação"
+        },
+        "name": "Nome do Ficheiro",
+        "size": "Tamanho",
+        "created": "Criado a",
+        "modified": "Modificado a"
+      },
+      "log": {
+        "main": "Entrada",
+        "variant": {
+          "documents": "Histórico dos Documentos do Candidato",
+          "recommendations": "Histórico das Cartas de Recomendação"
+        },
+        "timestamp": "Instante",
+        "type": "Operação",
+        "filename": "Documento",
+        "size": "Tamanho",
+        "fileId": "ID do Documento"
+      }
+    }
+  },
+  "msg": {
+    "warning": "Atenção!",
+    "contest": {
+      "none": "Não existem concursos.",
+      "delete": {
+        "warning": "Esta operação não pode ser revertida. Irá eliminar todos os dados relativos a este concurso. Após esta operação não será possível consultar ou recuperar este dados. Deseja mesmo eliminar o concurso e todos os dados associados?",
+        "confirm": "Para apagar o concurso, introduza na caixa de texto abaixo o nome do concurso a apagar."
+      },
+      "hash": {
+        "none": "Link indisponível."
+      }
+    },
+    "candidate": {
+      "none": "Não existem candidatos.",
+      "delete": {
+        "warning": "Esta operação não pode ser revertida. Irá eliminar todos os dados relativos a este candidato. Após esta operação não será possível consultar ou recuperar este dados. Deseja mesmo eliminar a candidatura e todos os dados associados?",
+        "confirm": "Para apagar a candidatura, introduza na caixa de texto abaixo o nome do candidato a apagar."
+      },
+      "seal": {
+        "warning": "A submissão final da candidatura é um PASSO OBRIGATÒRIO caso pretenda que a candidatura seja considerada para avaliação. Apenas deverá submeter a candidatura depois de ter carregado toda a documentação relevante. Após submissão da candidatura já não poderá adicionar, alterar ou apagar documentos submetidos anteriormente.",
+        "confirm": "Após submissão da candidatura já não poderá adicionar, alterar ou apagar documentos submetidos anteriormente. Prosseguir?",
+        "sealed": "Esta candidatura encontra-se lacrada. Deverá guardar os seguintes dados para referência futura.",
+        "broken": "Esta candidatura foi modificada após ter sido lacrada!"
+      },
+      "hash": {
+        "none": "Link indisponível."
+      },
+      "file": {
+        "none": "Não existem ficheiros."
+      },
+      "log": {
+        "none": "Não existem entradas no histórico."
+      }
+    }
+  },
+  "feedback": {
+    "candidate": {
+      "create": "O seu registo foi efetuado com sucesso. Irá receber no seu e-mail uma ligação para completar a sua candidatura."
+    },
+    "success": "Operação realizada com sucesso!",
+    "validation": "É necessário efetuar correções nos campos indicados.",
+    "noNetwork": "Não está ligado à internet."
+  },
+  "validation": {
+    "missing": "Este campo é obrigatório.",
+    "malformed": "O valor deve estar no seguinte formato: '{format}'."
+  },
+  "error": {
+    "400": {
+      "title": "400 Pedido Inválido",
+      "message": "O seu pedido foi malformado."
+    },
+    "403": {
+      "title": "403 Proibido",
+      "message": "Não tem acesso a este serviço."
+    },
+    "404": {
+      "title": "404 Não Encontrado",
+      "message": "A página que procura não foi encontrada."
+    },
+    "500": {
+      "title": "500 Erro Interno",
+      "message": "Ocorreu um erro no serviço."
+    },
+    "504": {
+      "title": "504 Gateway Time-Out",
+      "message": "Não foi possível estabelecer ligação ao servidor."
+    }
+  }
+}
