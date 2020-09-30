@@ -1,17 +1,10 @@
 package pt.ist.applications.admissions.domain;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.text.Collator;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
-
+import com.google.common.base.Strings;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.fenixedu.bennu.ApplicationsAdmissionsConfiguration;
-import org.fenixedu.bennu.core.domain.User;
-import org.fenixedu.bennu.core.groups.Group;
 import org.fenixedu.messaging.core.domain.Message;
 import org.fenixedu.messaging.core.template.DeclareMessageTemplate;
 import org.fenixedu.messaging.core.template.TemplateParameter;
@@ -19,15 +12,14 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.context.MessageSource;
-
 import pt.ist.applications.admissions.util.Utils;
 import pt.ist.drive.sdk.ClientFactory;
 import pt.ist.fenixframework.Atomic;
 
-import com.google.common.base.Strings;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.Collator;
+import java.util.*;
 
 @DeclareMessageTemplate(bundle = "resources.ApplicationsAdmissionsResources", id = "message.applications.admissions.candidacy",
         description = "message.applications.admissions.candidacy", subject = "message.applications.admissions.candidacy.subject",
@@ -42,7 +34,8 @@ import com.google.gson.JsonObject;
                 @TemplateParameter(id = "candidateFiles", description = "template.parameter.files") })
 public class Candidate extends Candidate_Base {
 
-    Candidate(final Contest contest, final String name, String email, String contestPath, MessageSource messageSource) {
+    Candidate(final Contest contest, final String name, final String email, final String contestPath,
+              final MessageSource messageSource) {
         super();
         setCandidateNumber(contest.getCandidateSet().size() + 1);
         setName(name);
@@ -84,7 +77,7 @@ public class Candidate extends Candidate_Base {
     }
 
     @Atomic
-    public void generateHash(String contestPath, MessageSource messageSource) {
+    public void generateHash(final String contestPath, final MessageSource messageSource) {
         setEditHash(UUID.randomUUID().toString());
         sendRegistrationEmail(contestPath, messageSource);
     }
@@ -104,7 +97,7 @@ public class Candidate extends Candidate_Base {
     }
 
     @Atomic
-    public void submitApplication(MessageSource messageSource) {
+    public void submitApplication(final MessageSource messageSource) {
         final DateTime now = new DateTime();
         setSealDate(now);
         setSeal(calculateDigest());
@@ -165,7 +158,7 @@ public class Candidate extends Candidate_Base {
         return result;
     }
 
-    public void sendRegistrationEmail(String contestPath, MessageSource messageSource) {
+    public void sendRegistrationEmail(final String contestPath, final MessageSource messageSource) {
         if (!Strings.isNullOrEmpty(getEmail())) {
             final StringBuilder url = new StringBuilder();
             String candidacyBasePath = ApplicationsAdmissionsConfiguration.getConfiguration().candidacyBasePath();
@@ -173,22 +166,19 @@ public class Candidate extends Candidate_Base {
                     .append(getEditHash());
             final DateTimeFormatter datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm (ZZZ)");
 
-            final User clientAppUser =
-                    User.findByUsername(ApplicationsAdmissionsConfiguration.getConfiguration().contestAppUser());
-
-            Message.fromSystem().to(Group.users(clientAppUser)).singleBcc(getEmail())
+            Message.fromSystem()
+                    .singleTos(ApplicationsAdmissionsConfiguration.getConfiguration().emailTo())
+                    .singleBcc(getEmail())
                     .template("message.applications.admissions.candidacy")
                     .parameter("contestName", getContest().getContestName()).parameter("url", url.toString())
                     .parameter("endDate", datePattern.print(getContest().getEndDate())).and().send();
         }
     }
 
-    private void sendApplicationSubmitionEmail(MessageSource messageSource) {
+    private void sendApplicationSubmitionEmail(final MessageSource messageSource) {
         if (!Strings.isNullOrEmpty(getEmail())) {
 
-            final User clientAppUser =
-                    User.findByUsername(ApplicationsAdmissionsConfiguration.getConfiguration().contestAppUser());
-            StringBuilder files = new StringBuilder();
+            final StringBuilder files = new StringBuilder();
             final JsonArray ja = ClientFactory.configurationDriveClient().listDirectory(getDirectoryForCandidateDocuments());
 
             for (final JsonObject jo : sortBy(ja, "name", "created", "modified", "size")) {
@@ -198,7 +188,9 @@ public class Candidate extends Candidate_Base {
                 files.append(new DateTime(jo.get("modified").getAsLong()).toString("yyyy-MM-dd HH:mm"));
             }
 
-            Message.fromSystem().to(Group.users(clientAppUser)).singleBcc(getEmail())
+            Message.fromSystem()
+                    .singleTos(ApplicationsAdmissionsConfiguration.getConfiguration().emailTo())
+                    .singleBcc(getEmail())
                     .template("message.applications.admissions.submition")
                     .parameter("contestName", getContest().getContestName()).parameter("candidateFiles", files.toString()).and()
                     .send();
