@@ -1,0 +1,155 @@
+{
+  "action": {
+    "view": "View",
+    "create": "Create",
+    "edit": "Edit",
+    "delete": "Delete",
+    "download": "Download",
+    "upload": "Upload",
+    "export": "Export",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "contest": {
+      "view": "View Contest",
+      "create": "Create Contest",
+      "edit": "Edit Contest",
+      "delete": "Delete Contest",
+      "export": "Export Contest Candidates",
+      "hash": {
+        "create": "Generate New Hash",
+        "delete": "Undispose"
+      }
+    },
+    "candidate": {
+      "view": "View Candidate",
+      "create": "Register Candidate",
+      "edit": "Edit Candidate",
+      "delete": "Delete Candidate",
+      "download": "Download all files",
+      "hash": {
+        "create": "Generate New Hash",
+        "delete": "Undispose"
+      },
+      "file": {
+        "delete": "Delete File",
+        "download": "Download File",
+        "upload": "Upload File"
+      },
+      "seal": {
+        "create": "Submit Application"
+      },
+      "log": {
+        "view": "View Logs"
+      }
+    }
+  },
+  "label": {
+    "at": "at",
+    "contest": {
+      "main": "Contest",
+      "name": "Contest Name",
+      "begin": "Begin Date",
+      "end": "End Date",
+      "link": "Contest Link"
+    },
+    "candidate": {
+      "main": "Candidate",
+      "number": "Candidate #",
+      "name": "Full Name",
+      "email": "Email",
+      "link": "Candidate Link",
+      "file": {
+        "main": "File",
+        "variant": {
+          "documents": "Candidate Documents",
+          "recommendations": "Letters of Recommendation"
+        },
+        "name": "File Name",
+        "size": "Size",
+        "created": "Created",
+        "modified": "Modified"
+      },
+      "log": {
+        "main": "Log",
+        "variant": {
+          "documents": "Candidate Document Logs",
+          "recommendations": "Letters of Recommendation Logs"
+        },
+        "timestamp": "When",
+        "type": "Operation",
+        "filename": "Document",
+        "size": "Size",
+        "fileId": "Document ID"
+      }
+    }
+  },
+  "msg": {
+    "warning": "Be aware!",
+    "contest": {
+      "none": "There are no contests.",
+      "delete": {
+        "warning": "This operation cannot be undone. If you procede you will eliminate this contest and all its associated data. After this operation you will no longer be able to view or recover this information. Do you really wish to procede?",
+        "confirm": "To delete the contest, input its name into the following box."
+      },
+      "hash": {
+        "none": "Link unavailable."
+      }
+    },
+    "candidate": {
+      "none": "There are no candidates.",
+      "delete": {
+        "warning": "This operation cannot be undone. If you procede you will eliminate this candidate and all their associated data. After this operation you will no longer be able to view or recover this information. Do you really wish to procede?",
+        "confirm": "To delete the candidate, input their name into the following box."
+      },
+      "seal": {
+        "warning": "Final submission of your application is a MANDATORY STEP if you wish your application to be considered for evaluation. Submission of your application should only be done AFTER all necessary application documents have been uploaded. After submitting your application you will not be allowed to add, change or delete any previously submitted document.",
+        "confirm": "After submitting your application it is no longer possible to add, change or delete any previously submitted document. Proceed with submission?",
+        "sealed": "This application has been sealed. Save the following information for future reference.",
+        "broken": "This application has been changed after it was sealed!"
+      },
+      "hash": {
+        "none": "Link unavailable."
+      },
+      "file": {
+        "none": "There are no files."
+      },
+      "log": {
+        "none": "There are no logs."
+      }
+    }
+  },
+  "feedback": {
+    "candidate": {
+      "create": "Your registration has been successful. You will receive in your email a link to complete your application."
+    },
+    "success": "Operation performed successfully!",
+    "validation": "Corrections to the indicated fields are required.",
+    "noNetwork": "You are not connected to the internet."
+  },
+  "validation": {
+    "missing": "This field is required.",
+    "malformed": "The value must be in the following format: '{format}'."
+  },
+  "error": {
+    "400": {
+      "title": "400 Bad Request",
+      "message": "Your request was malformed."
+    },
+    "403": {
+      "title": "403 Forbidden",
+      "message": "You do not have access to this service."
+    },
+    "404": {
+      "title": "404 Not Found",
+      "message": "The page you're looking for could not be found."
+    },
+    "500": {
+      "title": "500 Internal Server Error",
+      "message": "An error has occurred in the service."
+    },
+    "504": {
+      "title": "504 Gateway Time-Out",
+      "message": "Can’t establish a connection to the server."
+    }
+  }
+}
