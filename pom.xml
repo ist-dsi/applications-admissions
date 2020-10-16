@@ -11,7 +11,7 @@
 
     <groupId>pt.ist</groupId>
     <artifactId>applications-admissions</artifactId>
-    <version>5.0.0</version>
+    <version>5.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Applications and Admission Process</name>
@@ -20,7 +20,7 @@
         <connection>scm:git:git@github.com:ist-dsi/applications-admissions.git</connection>
         <developerConnection>scm:git:git@github.com:ist-dsi/applications-admissions.git</developerConnection>
         <url>http://fenixedu.org</url>
-        <tag>v5.0.0</tag>
+        <tag>v4.0.1</tag>
     </scm>
 
     <issueManagement>
