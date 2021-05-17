@@ -17,9 +17,9 @@
     <name>Applications and Admission Process</name>
 
     <scm>
-        <connection>scm:git:git@repo.dsi.tecnico.ulisboa.pt:bennu/application/applications-admissions.git</connection>
-        <developerConnection>scm:git:git@repo.dsi.tecnico.ulisboa.pt:bennu/application/applications-admissions</developerConnection>
-        <url>https://repo.dsi.tecnico.ulisboa.pt/bennu/application/applications-admissions</url>
+        <connection>scm:git:git@repo.dsi.tecnico.ulisboa.pt:software/tecnicolisboa/applications-admissions.git</connection>
+        <developerConnection>scm:git:git@repo.dsi.tecnico.ulisboa.pt:software/tecnicolisboa/applications-admissions</developerConnection>
+        <url>https://repo.dsi.tecnico.ulisboa.pt/software/tecnicolisboa/applications-admissions</url>
         <tag>HEAD</tag>
     </scm>
 
