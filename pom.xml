@@ -11,7 +11,7 @@
 
     <groupId>pt.ist</groupId>
     <artifactId>applications-admissions</artifactId>
-    <version>6.0.1</version>
+    <version>DEV-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Applications and Admission Process</name>
@@ -20,7 +20,7 @@
         <connection>scm:git:git@repo.dsi.tecnico.ulisboa.pt:software/tecnicolisboa/applications-admissions.git</connection>
         <developerConnection>scm:git:git@repo.dsi.tecnico.ulisboa.pt:software/tecnicolisboa/applications-admissions</developerConnection>
         <url>https://repo.dsi.tecnico.ulisboa.pt/software/tecnicolisboa/applications-admissions</url>
-        <tag>v6.0.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
