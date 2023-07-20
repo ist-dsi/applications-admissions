@@ -145,11 +145,11 @@ module.exports = {
       },
       '/api': {
         secure: false,
-        target: 'http://localhost:8080/dot'
+        target: 'http://localhost:8080'
       },
       '/applicationsAdmissions': {
         secure: false,
-        target: `http://localhost:8080/dot`
+        target: `http://localhost:8080`
       }
     },
     disableHostCheck: true,

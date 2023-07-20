@@ -15,7 +15,7 @@ import handlers from './handlers'
 Vue.use(Router)
 
 const router = new Router({
-  base: `${process.env.CTX && !process.env.DEV ? '/' + process.env.CTX : ''}/applications-admissions`,
+  base: '/applications-admissions',
   routes: [
     {
       path: '/',

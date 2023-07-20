@@ -13,7 +13,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, '../dist'),
-    publicPath: `${process.env.CTX ? '/' + process.env.CTX : ''}/applications-admissions`,
+    publicPath: '/applications-admissions',
     filename: '[name].[contenthash:8].js'
   },
   context: path.resolve(__dirname, '..'),
