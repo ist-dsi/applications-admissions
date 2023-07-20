@@ -9,7 +9,7 @@
     "start": "cross-env CTX='dot' npm run dev",
     "dist": "mkdir -p ../webapp/applications-admissions; rm -rf ../webapp/applications-admissions/*; rm -rf dist; webpack --config build/webpack.conf.prod.js; cp -r dist/* ../webapp/applications-admissions/",
     "production": "npm run dist",
-    "package": "mkdir -p ../webapp/applications-admissions; rm -rf ../webapp/applications-admissions/*; rm -rf dist; cross-env CTX='dot' webpack --config build/webpack.conf.prod.js; cp -r dist/* ../webapp/applications-admissions/; mv ../webapp/applications-admissions/index.html ../webapp/applications-admissions/index.jsp",
+    "package": "mkdir -p ../webapp/applications-admissions; rm -rf ../webapp/applications-admissions/*; rm -rf dist; cross-env CTX='dot' DEV=false webpack --config build/webpack.conf.prod.js; cp -r dist/* ../webapp/applications-admissions/; mv ../webapp/applications-admissions/index.html ../webapp/applications-admissions/index.jsp",
     "staging": "npm run package",
     "lint": "eslint --ext .js,.vue src --fix",
     "analysis": "webpack --mode=production --display-reasons --json --config build/webpack.conf.prod.js > build/analysis.json",
