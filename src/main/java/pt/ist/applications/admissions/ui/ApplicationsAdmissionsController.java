@@ -18,10 +18,40 @@
  */
 package pt.ist.applications.admissions.ui;
 
-import java.io.IOException;
-import java.util.Comparator;
-import java.util.Locale;
-import java.util.Map;
+import com.google.common.base.Strings;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import org.apache.commons.validator.routines.EmailValidator;
+import org.apache.tika.mime.MimeType;
+import org.apache.tika.mime.MimeTypeException;
+import org.apache.tika.mime.MimeTypes;
+import org.fenixedu.bennu.ApplicationsAdmissionsConfiguration;
+import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.json.JsonUtils;
+import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.bennu.core.security.SkipCSRF;
+import org.fenixedu.bennu.spring.portal.SpringApplication;
+import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.commons.i18n.I18N;
+import org.fenixedu.commons.spreadsheet.SheetData;
+import org.fenixedu.commons.spreadsheet.SpreadsheetBuilder;
+import org.fenixedu.commons.spreadsheet.WorkbookExportFormat;
+import org.fenixedu.commons.stream.StreamUtils;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import pt.ist.applications.admissions.domain.Candidate;
+import pt.ist.applications.admissions.domain.Contest;
+import pt.ist.applications.admissions.util.Utils;
+import pt.ist.drive.sdk.ClientFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,45 +61,11 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.validator.routines.EmailValidator;
-import org.apache.tika.mime.MimeType;
-import org.apache.tika.mime.MimeTypeException;
-import org.apache.tika.mime.MimeTypes;
-import org.fenixedu.bennu.ApplicationsAdmissionsConfiguration;
-import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.bennu.core.security.SkipCSRF;
-import org.fenixedu.bennu.spring.portal.SpringApplication;
-import org.fenixedu.bennu.spring.portal.SpringFunctionality;
-import org.fenixedu.commons.i18n.I18N;
-import org.fenixedu.commons.spreadsheet.SheetData;
-import org.fenixedu.commons.spreadsheet.SpreadsheetBuilder;
-import org.fenixedu.commons.spreadsheet.WorkbookExportFormat;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.google.common.base.Strings;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
-import pt.ist.applications.admissions.domain.Candidate;
-import pt.ist.applications.admissions.domain.Contest;
-import pt.ist.applications.admissions.util.Utils;
-import pt.ist.drive.sdk.ClientFactory;
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Stream;
 
 @SpringApplication(group = "anyone", path = "applications", title = "title.applications.admissions",
         hint = "applications-admissions")
@@ -330,7 +326,8 @@ public class ApplicationsAdmissionsController {
     public String download(@PathVariable Candidate candidate, @PathVariable String id,
             @RequestParam(required = false) String hash, final HttpServletResponse response) throws IOException {
         if (Contest.canManageContests() || candidate.verifyHash(hash)) {
-            if (containsFileId(candidate, id)) {
+            final boolean isCandidate = candidate.verifyHashForEdit(hash);
+            if (containsFileId(candidate, id, isCandidate)) {
                 ClientFactory.configurationDriveClient().downloadFile(id, response);
             }
             return null;
@@ -339,15 +336,17 @@ public class ApplicationsAdmissionsController {
         }
     }
 
-    private boolean containsFileId(final Candidate candidate, final String id) {
-        for (final JsonElement je : ClientFactory.configurationDriveClient().listDirectory(candidate.getDirectoryForCandidateDocuments())) {
-            final JsonObject jo = je.getAsJsonObject();
-            final String fileId = jo.get("id").getAsString();
-            if (fileId.equals(id)) {
-                return true;
-            }
+    private Stream<JsonObject> listDir(final String path) {
+        return StreamUtils.of(ClientFactory.configurationDriveClient().listDirectory(path))
+                .map(JsonElement::getAsJsonObject);
+    }
+
+    private boolean containsFileId(final Candidate candidate, final String id, final boolean isCandidate) {
+        Stream<JsonObject> stream = listDir(candidate.getDirectoryForCandidateDocuments());
+        if (!isCandidate) {
+            stream = Stream.concat(stream, listDir(candidate.getDirectoryForLettersOfRecomendation()));
         }
-        return false;
+        return stream.map(j -> JsonUtils.get(j, "id")).anyMatch(fid -> id.equals(fid));
     }
 
     @SkipCSRF
